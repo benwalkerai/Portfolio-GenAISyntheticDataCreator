@@ -12,8 +12,8 @@ from .excel_generator import ExcelGenerator
 
 class SyntheticDataGenerator:
     def __init__(self):
-        #self.ollama_url = "http://localhost:11434/api/generate"
-        self.ollama_url = "https://llama4.cc-demos.com/v1/chat/completions"
+        self.ollama_url = "http://localhost:11434/api/generate"
+        #self.ollama_url = "https://llama4.cc-demos.com/v1/chat/completions"
         self.document_generator = DocumentGenerator(self)
         self.excel_generator = ExcelGenerator(self)
 
