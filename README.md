@@ -1,303 +1,194 @@
-# 🎯 Synthetic Data Generator
+# Synthetic Data Generator
 
-A powerful, modular Python application that generates synthetic documents and datasets using local Ollama Mistral AI model. Create professional documents, Excel spreadsheets, and CSV files with contextually relevant content for testing, development, and demonstration purposes.
+An intelligent synthetic data generation application powered by **Local LLMs** (Ollama, llama.cpp, etc.) with a user-friendly Gradio web interface. Generate realistic datasets and documents in multiple formats for testing, development, and machine learning applications.
 
-## 🚀 Features
+![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Gradio](https://img.shields.io/badge/UI-Gradio-orange)
 
-### 📄 Document Generation
-- **Multiple Formats**: Word (.docx), PDF (.pdf), Text (.txt)
-- **Document Types**: Whitepapers, Articles, Reports, Proposals, Design Documents
-- **Iterative Generation**: Section-by-section creation for longer documents (3+ pages)
-- **Professional Formatting**: Proper headings, lists, and styling
-- **Page Control**: Generate documents from 1-50 pages
+## 🌟 Features
 
-### 📊 Data Generation
-- **Excel & CSV Support**: Generate structured datasets
-- **Smart Headers**: Context-aware column names based on subject
-- **Scalable**: From 10 to 2000+ rows with up to 100 columns
-- **Subject-Aware Content**: Data contextually relevant to your topic
-- **Clean Output**: Filtered and validated data with fallback mechanisms
+### Data Generation
+- **CSV & Excel Files**: Generate structured tabular data with realistic values
+- **Smart Schema Detection**: LLM-powered column header generation based on subject matter
+- **Statistical Realism**: Log-normal distributions for salaries, power-law for transactions
+- **Temporal Coherence**: Realistic date ranges with seasonal patterns
+- **Geographic Consistency**: Validated country-city relationships
+- **Correlation Preservation**: Related fields maintain realistic relationships
 
-### 🎯 Subject-Aware Intelligence
-- **Contextual Content**: All generated content relates to your specified subject
-- **Smart Templates**: Pre-configured section templates for different document types
-- **Industry-Specific**: Specialized headers and content for AI, healthcare, finance, etc.
-- **Custom Topics**: Works with any subject you specify
+### Document Generation
+- **Multiple Formats**: Word (.docx), PDF (.pdf), Text (.txt), Markdown (.md)
+- **Document Types**: Whitepapers, articles, reports, proposals, design documents
+- **Professional Formatting**: Automatic styling and structure
+- **Iterative Generation**: Handles long-form content with multiple LLM calls
 
-### 🔧 Technical Features
-- **Local AI**: Uses Ollama Mistral model (no cloud dependencies)
-- **Modular Architecture**: Clean, maintainable code structure
-- **Web Interface**: User-friendly Gradio UI
-- **Progress Tracking**: Real-time generation status
-- **Error Handling**: Robust fallback mechanisms
+### Advanced Features
+- **Product Catalog Generator**: Specialized fast-path for realistic product data
+- **Domain Constraints**: Category-specific validation rules (electronics, automotive, etc.)
+- **Data Quality Options**: Control realism, correlations, and error patterns
+- **Preview & Validation**: Real-time data preview before download
+- **Batch Processing**: CLI support for automated generation
 
-### Main Interface
-![Main Interface](screenshots/UI_Screenshot.png)
+## 📋 Requirements
 
-### Output
-![Outputs](screenshots/Output.png)
+- **Python**: 3.8 or higher
+- **Local LLM Server**: REQUIRED. You must have a local LLM server running (e.g., [Ollama](https://ollama.ai) or [llama.cpp](https://github.com/ggerganov/llama.cpp)).
+- **Memory**: 4GB RAM minimum (8GB+ recommended for 7B models)
+- **Storage**: ~500MB for dependencies
 
-## 📁 Project Structure
+## 🚀 Installation & Setup
 
-```
-SyntheticDataCreator/
-├── main.py                    # Main entry point
-├── generators/
-│   ├── __init__.py           # Package initialization
-│   ├── data_generator.py     # Core generator class
-│   ├── document_generator.py # Document-specific methods
-│   └── excel_generator.py    # Excel/CSV-specific methods
-├── config/
-│   ├── __init__.py          # Package initialization
-│   └── settings.py          # Configuration and options
-├── utils/
-│   ├── __init__.py          # Package initialization
-│   └── helpers.py           # Helper functions
-├── ui/
-│   ├── __init__.py          # Package initialization
-│   └── interface.py         # Gradio interface
-└── README.md                # This file
-```
+### 1. Clone the Repository
 
-## ⚙️ Prerequisites
-
-### Required Software
-- **Python 3.8+**
-- **Ollama** with Mistral model installed and running locally
-
-### Required Python Packages
 ```bash
-pip install gradio requests python-docx pandas openpyxl
+git clone <repository-url>
+cd GenAISyntheticDataCreator
 ```
 
-### Optional Packages
+### 2. Configure Environment
+
+Copy the example environment file:
 ```bash
-pip install reportlab  # For PDF generation
+cp .env.example .env
+```
+Edit `.env` to point to your local LLM server:
+```ini
+LLM_API_BASE=http://localhost:11434/v1  # For Ollama
+# LLM_API_BASE=http://localhost:8080/v1  # For llama-server
+LLM_API_KEY=ollama
+LLM_MODEL=llama3.1:8b  # Match your loaded model
 ```
 
-## 🛠️ Installation
+### 3. Run with uv (Recommended)
 
-### 1. Clone or Download
+This project supports `uv` for fast dependency management.
+
 ```bash
-git clone 
-cd SyntheticDataCreator
+# Install dependencies and run
+uv run main.py
 ```
 
-### 2. Install Dependencies
+### Alternative: Standard Pip
+
 ```bash
 pip install -r requirements.txt
-```
-
-### 3. Install and Setup Ollama
-```bash
-# Install Ollama (visit ollama.ai for platform-specific instructions)
-# Pull Mistral model
-ollama pull mistral
-
-# Start Ollama service
-ollama serve
-```
-
-### 4. Run the Application
-```bash
 python main.py
 ```
 
-### 5. Access the Interface
-Open your browser and navigate to: `http://localhost:7860`
+The application will launch at `http://localhost:7860`
 
-## 🎮 Usage Guide
+### 4. Run with Docker
 
-### Document Generation
+You can run the application in a container. Note that to access a local LLM running on your host machine from inside the container, you may need to use `host.docker.internal` as the host in your `.env` file (e.g., `http://host.docker.internal:11434/v1`).
 
-1. **Select Format**: Choose from Word, PDF, or Text
-2. **Enter Subject**: Specify your topic (e.g., "artificial intelligence", "renewable energy")
-3. **Set Pages**: Choose number of pages (1-50)
-4. **Select Type**: Pick document type (whitepaper, article, report, proposal, design)
-5. **Generate**: Click the generate button and download your file
+```bash
+# Build and start
+docker-compose up --build
+```
 
-### Data Generation
+## 📖 Usage Guide
 
-1. **Select Format**: Choose Excel or CSV
-2. **Enter Subject**: Specify your topic for contextual data
-3. **Set Dimensions**: Choose number of rows and columns
-4. **Generate**: Click generate and download your structured dataset
+### Web Interface
 
-### Subject Examples
+1. **Select File Format**: Choose from Excel, CSV, Word, PDF, Text, or Markdown
+2. **Enter Subject**: Describe your data (e.g., "Employee salary records")
+3. **Set Parameters**:
+   - **Data Files**: Specify rows and columns
+   - **Documents**: Specify number of pages and document type
+4. **Configure LLM**:
+   - Verify model name and URL in the settings accordion if needed.
+5. **Advanced Options** (optional):
+   - Enable temporal coherence for time-series data
+   - Add correlations between related fields
+   - Include realistic error patterns
+6. **Generate**: Click generate and wait for completion
+7. **Preview & Download**: Review data and download the file
 
-#### 🔬 Technical
-- `"machine learning algorithms"`
-- `"cybersecurity frameworks"`
-- `"cloud computing architecture"`
+### Command Line Interface
 
-#### 💼 Business
-- `"digital transformation"`
-- `"supply chain management"`
-- `"customer analytics"`
+You can generate data without the UI using `create_data.py`.
 
-#### 🏭 Industry-Specific
-- `"healthcare innovation"`
-- `"renewable energy systems"`
-- `"financial technology"`
+**Basic Usage:**
+```bash
+uv run create_data.py [OPTIONS]
+```
 
-#### 🔒 Data Protection
-- `"GDPR compliance"`
-- `"privacy by design"`
-- `"data governance"`
+**Common Examples:**
 
-## 📊 Smart Data Features
+Generate a large customer CSV:
+```bash
+uv run create_data.py --csv --subject "Customer CRM records" --rows 5000 --columns 25
+```
 
-### Context-Aware Headers
-The system automatically generates relevant column headers based on your subject:
+Generate a generic Excel product catalog:
+```bash
+uv run create_data.py --xlsx --subject "Office Supplies" --rows 200 --columns 10
+```
 
-| Subject | Sample Headers |
-|---------|---------------|
-| Artificial Intelligence | AI_Model, Accuracy_Score, Training_Data, Algorithm_Type |
-| Data Protection | Data_Category, Protection_Level, Compliance_Status, Risk_Score |
-| Renewable Energy | Energy_Source, Capacity_MW, Efficiency_Rate, Location |
-| Healthcare | Patient_ID, Treatment_Type, Outcome_Score, Duration_Days |
+Generate a 10-page whitepaper in Word format:
+```bash
+uv run create_data.py --docx --subject "Future of AI" --pages 10 --doc-type whitepaper
+```
 
-### Document Types & Structures
+**Options Reference:**
 
-#### 📋 Whitepaper
-- Executive Summary
-- Introduction & Background
-- Technical Analysis
-- Methodology
-- Implementation Details
-- Results & Findings
-- Conclusions & References
+| Category | Flag | Description |
+|----------|------|-------------|
+| **Format** | `--csv`, `--xlsx` | Output format for tabular data |
+| | `--docx`, `--pdf`, `--txt`, `--md` | Output format for documents |
+| **Data** | `--rows INT` | Number of rows (default: 100) |
+| | `--columns INT` | Number of columns (default: 10) |
+| **Docs** | `--pages INT` | Number of pages (default: 3) |
+| | `--doc-type TEXT` | generic, whitepaper, article, report, proposal, design |
+| **General** | `--subject "TEXT"` | **Required**. Topic to guide generation |
+| | `-d`, `--dest PATH` | Output directory (default: current dir) |
+| **Realism** | `--no-correlations` | Disable logical data relationships |
+| | `--missingness FLOAT` | Rate of missing values (0.0 - 0.3) |
 
-#### 📰 Article
-- Introduction
-- Main Analysis
-- Case Studies & Examples
-- Industry Impact
-- Current Trends
-- Best Practices
-- Future Outlook
-- Conclusion
 
-#### 📈 Report
-- Executive Summary
-- Introduction & Methodology
-- Market Analysis
-- Data Analysis & Insights
-- Strategic Recommendations
-- Risk Assessment
-- Implementation Plan
-- Financial Analysis
+## 🏗️ Architecture
+
+```
+synthetic-data-generator/
+├── main.py                    # Web application entry point
+├── create_data.py             # CLI entry point
+├── interface.py               # Gradio UI components
+├── settings.py                # Configuration and constants
+├── data_generator.py          # Main orchestrator
+├── excel_generator.py         # Data file generation engine
+├── document_generator.py      # Document generation engine
+├── helpers.py                 # Utility functions
+├── product_constraints.py     # Product catalog validation
+└── requirements.txt           # Python dependencies
+```
 
 ## 🔧 Configuration
 
-### Ollama Settings
-The application connects to Ollama at `http://localhost:11434` by default. You can modify this in `generators/data_generator.py`:
+### LLM Settings
 
-```python
-def __init__(self):
-    self.ollama_url = "http://localhost:11434/api/generate"  # Modify if needed
-```
+Use the `.env` file to control your LLM connection. The application uses the standard OpenAI API format, which is compatible with most local servers.
 
-### Generation Parameters
-Adjust generation parameters in `generators/data_generator.py`:
-
-```python
-"options": {
-    "num_predict": max_tokens or 4000,  # Token limit
-    "temperature": 0.7,                 # Creativity (0.0-1.0)
-    "top_p": 0.9,                      # Nucleus sampling
-    "repeat_penalty": 1.1              # Repetition penalty
-}
-```
-
-### File Format Options
-Add or modify supported formats in `config/settings.py`:
-
-```python
-file_format_options = {
-    "Word Document (.docx)": {
-        "size_options": ["1", "2", "3", "4", "5", "10", "20", "30", "40", "50"],
-        "content_options": ["whitepaper", "article", "report", "proposal", "design"],
-        # ...
-    }
-}
-```
-
-## 🐛 Troubleshooting
-
-### Common Issues
-
-#### Ollama Connection Error
-```
-Error: Could not connect to Ollama
-```
-**Solution**: Ensure Ollama is running with `ollama serve`
-
-#### Missing Dependencies
-```
-ImportError: No module named 'gradio'
-```
-**Solution**: Install required packages with `pip install -r requirements.txt`
-
-#### PDF Generation Disabled
-```
-⚠️  Warning: ReportLab not installed. PDF generation will be disabled.
-```
-**Solution**: Install ReportLab with `pip install reportlab`
-
-#### Short Document Generation
-Documents not reaching requested length.
-**Solution**: The system uses iterative generation for 3+ pages automatically.
-
-### Debug Mode
-Enable debug output by checking the console when running the application. You'll see:
-- Generation progress for iterative documents
-- CSV parsing details for Excel/CSV generation
-- Error messages and fallback activation
+- **LLM_API_BASE**: The endpoint URL (must include `/v1` usually).
+- **LLM_MODEL**: The exact model name string.
 
 ## 🤝 Contributing
 
-### Adding New Document Types
-1. Add prompts to `generators/document_generator.py`
-2. Add section configurations for iterative generation
-3. Update `config/settings.py` with new options
+Contributions are welcome!
+- Additional file formats (JSON, Parquet, SQL)
+- More document types (presentations, spreadsheets)
+- Enhanced validation rules
 
-### Adding New Data Subjects
-1. Add subject headers to `generators/excel_generator.py`
-2. Test with various subjects to ensure proper matching
+## 📝 License
 
-### Adding New File Formats
-1. Create generation method in appropriate generator
-2. Update `config/settings.py` with format options
-3. Update UI components in `ui/interface.py`
-
-## 📄 License
-
-This project is open-source. Please ensure compliance with Ollama and other dependency licenses.
-
-## ⚠️ Disclaimer
-
-This application generates **synthetic data for demonstration and testing purposes only**. All generated content is artificially created and should not be used for:
-- Actual business decisions
-- Real-world implementation
-- Factual reference material
-- Production systems without proper validation
-
-Always consult appropriate experts and conduct proper research for real-world applications.
+This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- **Ollama** for providing local AI model infrastructure
-- **Mistral AI** for the language model
-- **Gradio** for the web interface framework
-- **Python community** for excellent libraries (pandas, python-docx, reportlab)
+- Built with [Gradio](https://gradio.app) for the web interface
+- Powered by Local LLMs (Ollama, llama.cpp)
+- Uses [OpenAI API](https://github.com/openai/openai-python) for standardized communication
 
-## 📞 Support
+---
 
-For issues, questions, or contributions:
-1. Check the troubleshooting section above
-2. Review console output for error messages
-3. Ensure all prerequisites are properly installed
-4. Verify Ollama is running and accessible
-
-**Happy Generating!** 🎉 Create amazing synthetic content for your projects with ease.
+**Version**: 1.0.0  
+**Author**: [Ben Walker](https://github.com/benwalkerai)

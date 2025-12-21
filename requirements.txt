@@ -1,19 +1,24 @@
+# Synthetic Data Generator - Requirements
+# Generated: October 28, 2025
+# Python 3.8+ required
 
-# Core Dependencies
-gradio>=4.0.0
-requests>=2.28.0
-pandas>=1.5.0
-openpyxl>=3.0.0
-python-docx>=0.8.11
+# Core Web UI Framework
+gradio>=5.0.0,<6.0.0
 
-# Optional Dependencies (PDF Support)
-reportlab>=3.6.0
+# Data Processing and Analysis
+pandas>=2.0.0
+numpy>=1.24.0
+# Excel File Generation
+openpyxl>=3.1.0
+# Document Generation
+python-docx>=1.1.0
 
-# Additional Utilities
-#io-extensions>=0.0.1
-#tempfile-extensions>=1.0.0
 
-# Development Dependencies (Optional)
-pytest>=7.0.0
-black>=22.0.0
-flake8>=5.0.0
+# PDF Generation (Optional but recommended)
+reportlab>=4.0.0
+
+# LLM Integration
+openai>=1.0.0
+
+# ENV loading
+python-dotenv>=1.0.0

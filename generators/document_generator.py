@@ -1,10 +1,33 @@
 """
-Document Generator Module
-Handles Word, PDF, and Text document generation
+Document Generator Module - AI-powered document creation.
+
+This module provides comprehensive document generation capabilities for creating
+realistic synthetic documents in multiple formats including Word (.docx), PDF (.pdf),
+and plain text (.txt). It supports various document types with intelligent content
+generation and professional formatting.
+
+Key Features:
+- Multiple document types: whitepapers, articles, reports, proposals, design docs
+- Intelligent content generation with LLM integration
+- Professional formatting and structure
+- Iterative generation for longer documents
+- Multiple output formats with proper styling
+- Automatic content length management
+
+Supported Document Types:
+- Whitepapers: Technical analysis and methodology
+- Articles: In-depth analysis with case studies
+- Reports: Business analysis with strategic recommendations
+- Proposals: Project proposals with timelines and budgets
+- Design: IT system design and architecture documents
+
+Author: Ben Walker (https://github.com/benwalkerai)
+Version: 1.0.0
 """
 
 import io
 import tempfile
+from typing import Dict, List, Tuple, Any, Optional
 from docx import Document
 from docx.shared import Inches
 
@@ -17,15 +40,88 @@ try:
     REPORTLAB_AVAILABLE = True
 except ImportError:
     REPORTLAB_AVAILABLE = False
-    print("⚠️  Warning: ReportLab not installed. PDF generation will be disabled.")
+    print("  Warning: ReportLab not installed. PDF generation will be disabled.")
 
 
 class DocumentGenerator:
-    def __init__(self, data_generator):
+    """
+    AI-powered document generator for creating realistic synthetic documents.
+    
+    This class provides comprehensive document generation capabilities using
+    LLM integration to create professional-quality documents in multiple formats.
+    It supports various document types with intelligent content generation,
+    proper formatting, and automatic length management.
+    
+    Attributes:
+        data_generator: Reference to the main data generator for LLM access
+        REPORTLAB_AVAILABLE (bool): Whether PDF generation is available
+    
+    Example:
+        >>> from generators.data_generator import SyntheticDataGenerator
+        >>> data_gen = SyntheticDataGenerator()
+        >>> doc_gen = DocumentGenerator(data_gen)
+        >>> path, status = doc_gen.generate_document(
+        ...     "article", 5, "AI Governance", "Word Document (.docx)"
+        ... )
+    """
+    
+    def __init__(self, data_generator: Any) -> None:
+        """
+        Initialize the document generator with LLM access.
+        
+        Args:
+            data_generator: The main data generator instance providing LLM access
+        """
         self.data_generator = data_generator
+        
+    def clear_cache(self) -> None:
+        """
+        Clear all cached document generation data.
+        
+        This method should be called before each new document generation to ensure
+        fresh, unique content is created.
+        """
+        # DocumentGenerator doesn't have a cache dict currently, but add for consistency
+        # and future-proofing in case caching is added later
+        if hasattr(self, 'llm_cache'):
+            self.llm_cache.clear()
+        print(" DocumentGenerator cache cleared")
 
-    def generate_document_content(self, content_type, pages, subject):
-        """Generate document content - simple approach for short documents"""
+    def generate_document_content(
+        self, 
+        content_type: str, 
+        pages: int, 
+        subject: str
+    ) -> str:
+        """
+        Generate document content using a single LLM call for shorter documents.
+        
+        This method uses a single comprehensive prompt to generate the entire
+        document content. It's optimized for shorter documents (1-2 pages) where
+        a single LLM call can produce sufficient content.
+        
+        Args:
+            content_type (str): Type of document to generate. Must be one of:
+                - "whitepaper": Technical analysis and methodology
+                - "article": In-depth analysis with case studies
+                - "report": Business analysis with strategic recommendations
+                - "proposal": Project proposals with timelines and budgets
+                - "design": IT system design and architecture documents
+            pages (int): Target number of pages for the document
+            subject (str): Subject/topic for the document content
+        
+        Returns:
+            str: Generated document content with proper structure and formatting
+        
+        Raises:
+            ValueError: If content_type is not supported
+        
+        Example:
+            >>> content = doc_gen.generate_document_content(
+            ...     "article", 2, "Machine Learning in Healthcare"
+            ... )
+            >>> print(f"Generated {len(content.split())} words")
+        """
         target_words = pages * 275
         
         prompts = {
@@ -130,13 +226,47 @@ Include architecture, components, interfaces and data flow. Note at the end that
             raise ValueError(f"Invalid content type: {content_type}. Choose from {list(prompts.keys())}.")
 
         prompt = prompts.get(content_type)
-        return self.data_generator.generate_with_ollama(prompt, max_tokens=6000)
-
-    def generate_document_content_iterative(self, content_type, pages, subject):
-        """Generate document content by building it section by section for longer documents"""
         
+        # Use a professional writing system prompt
+        system_prompt = "You are a professional technical writer and document specialist. Write clear, well-structured content in plain text with Markdown formatting. Do NOT output JSON or wrap content in code blocks. Focus on high-quality, readable content."
+        
+        return self.data_generator.generate_with_ollama(prompt, max_tokens=6000, system_prompt=system_prompt)
+
+    def generate_document_content_iterative(
+        self, 
+        content_type: str, 
+        pages: int, 
+        subject: str
+    ) -> str:
+        """
+        Generate document content by building it section by section for longer documents.
+        
+        This method uses an iterative approach where each section is generated
+        separately using focused prompts. This ensures better quality and length
+        control for longer documents (3+ pages) by breaking down the generation
+        process into manageable sections.
+        
+        Args:
+            content_type (str): Type of document to generate. Must be one of:
+                - "whitepaper": Technical analysis and methodology
+                - "article": In-depth analysis with case studies
+                - "report": Business analysis with strategic recommendations
+                - "proposal": Project proposals with timelines and budgets
+                - "design": IT system design and architecture documents
+            pages (int): Target number of pages for the document
+            subject (str): Subject/topic for the document content
+        
+        Returns:
+            str: Generated document content with proper structure and formatting
+        
+        Example:
+            >>> content = doc_gen.generate_document_content_iterative(
+            ...     "whitepaper", 8, "Quantum Computing Applications"
+            ... )
+            >>> print(f"Generated {len(content.split())} words")
+        """
         print(f"🔄 Generating {pages}-page {content_type} iteratively...")
-        sections = []
+        sections: List[str] = []
         
         # Section configurations for different document types
         section_configs = {
@@ -235,8 +365,12 @@ Section: {section_title}
 
 Write detailed, professional content that thoroughly covers this section with substantial depth and analysis."""
 
-            print(f"📝 Generating section {i+1}/{len(selected_sections)}: {section_title}")
-            section_content = self.data_generator.generate_with_ollama(section_prompt, max_tokens=2000)
+            print(f" Generating section {i+1}/{len(selected_sections)}: {section_title}")
+            
+            # Use a professional writing system prompt
+            system_prompt = "You are a professional technical writer and document specialist. Write clear, well-structured content in plain text with Markdown formatting. Do NOT output JSON or wrap content in code blocks. Focus on high-quality, readable content."
+            
+            section_content = self.data_generator.generate_with_ollama(section_prompt, max_tokens=2000, system_prompt=system_prompt)
             
             # Add section to document with proper formatting
             formatted_section = f"# {section_title}\n\n{section_content}"
@@ -250,47 +384,184 @@ Write detailed, professional content that thoroughly covers this section with su
         full_content = "\n\n".join(sections)
         
         word_count = len(full_content.split())
-        print(f"✅ Generated document with {len(sections)-1} sections, approximately {word_count} words")
+        print(f" Generated document with {len(sections)-1} sections, approximately {word_count} words")
         return full_content
 
-    def create_word_document(self, content):
-        """Create a Word document with the generated content"""
+    def _clean_content(self, content: str) -> str:
+        """
+        Clean generated content to remove JSON artifacts and code blocks.
+        """
+        # Remove code blocks first
+        content = content.replace('```markdown', '').replace('```json', '').replace('```', '')
+        
+        # Remove "Here is the document..." prefixes if common
+        lines = content.split('\n')
+        if len(lines) > 0 and (lines[0].lower().startswith('here is') or lines[0].lower().startswith('sure, here')):
+            content = '\n'.join(lines[1:])
+            
+        content = content.strip()
+
+        # Check for JSON wrapper after stripping code blocks
+        if content.startswith('{') and '"content":' in content:
+            try:
+                import json
+                data = json.loads(content)
+                if 'content' in data:
+                    return data['content']
+            except:
+                pass
+            
+        return content
+    
+    def _strip_markdown(self, text: str) -> str:
+        """Remove all Markdown syntax from text."""
+        import re
+        # Remove bold
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+        # Remove italic
+        text = re.sub(r'\*(.*?)\*', r'\1', text)
+        # Remove code
+        text = re.sub(r'`(.*?)`', r'\1', text)
+        return text
+    
+    def _markdown_to_html(self, text: str) -> str:
+        """Convert Markdown formatting to HTML for ReportLab."""
+        import re
+        # Convert **bold** to <b>bold</b>
+        text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+        # Convert *italic* to <i>italic</i>
+        text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+        # Convert `code` to monospace
+        text = re.sub(r'`(.*?)`', r'<font name="Courier">\1</font>', text)
+        return text
+
+    def create_word_document(self, content: str) -> bytes:
+        """
+        Create a Word document with the generated content and proper formatting.
+        
+        This method converts the generated content into a properly formatted
+        Word document (.docx) with headings, paragraphs, lists, and other
+        formatting elements based on markdown-style indicators in the content.
+        
+        Args:
+            content (str): The generated document content with markdown-style formatting
+        
+        Returns:
+            bytes: The Word document as bytes for file writing
+        
+        Example:
+            >>> content = "# Title\n\nThis is a paragraph with **bold** text."
+            >>> doc_bytes = doc_gen.create_word_document(content)
+            >>> with open("document.docx", "wb") as f:
+            ...     f.write(doc_bytes)
+        """
+        # Clean content first
+        content = self._clean_content(content)
+        
         doc = Document()
         
-        # Split content into paragraphs and add to document
-        paragraphs = content.split('\n\n')
+        # Split content into lines for better processing
+        lines = content.split('\n')
         
-        for i, paragraph in enumerate(paragraphs):
-            if paragraph.strip():
-                if i == 0:  # First paragraph as title
-                    doc.add_heading(paragraph.strip()[:100], 0)
-                elif paragraph.strip().startswith('# '):
-                    # Main headings
-                    heading_text = paragraph.strip().replace('# ', '')
-                    doc.add_heading(heading_text, 1)
-                elif paragraph.strip().startswith('## '):
-                    # Sub headings
-                    heading_text = paragraph.strip().replace('## ', '')
-                    doc.add_heading(heading_text, 2)
-                elif paragraph.strip().startswith('- ') or paragraph.strip().startswith('* '):
-                    # Bullet points
-                    doc.add_paragraph(paragraph.strip(), style='List Bullet')
-                elif paragraph.strip().startswith(('1. ', '2. ', '3. ', '4. ', '5. ')):
-                    # Numbered lists
-                    doc.add_paragraph(paragraph.strip(), style='List Number')
-                else:
-                    # Regular paragraphs
-                    doc.add_paragraph(paragraph.strip())
+        i = 0
+        while i < len(lines):
+            line = lines[i].strip()
+            
+            if not line:
+                i += 1
+                continue
+                
+            # Check for headings
+            if line.startswith('# '):
+                heading_text = line.replace('# ', '', 1)
+                # Strip any remaining markdown from heading
+                heading_text = self._strip_markdown(heading_text)
+                doc.add_heading(heading_text, 1)
+            elif line.startswith('## '):
+                heading_text = line.replace('## ', '', 1)
+                heading_text = self._strip_markdown(heading_text)
+                doc.add_heading(heading_text, 2)
+            elif line.startswith('### '):
+                heading_text = line.replace('### ', '', 1)
+                heading_text = self._strip_markdown(heading_text)
+                doc.add_heading(heading_text, 3)
+            # Check for bullet lists
+            elif line.startswith('- ') or line.startswith('* '):
+                list_text = line[2:].strip()
+                p = doc.add_paragraph(style='List Bullet')
+                self._add_formatted_text(p, list_text)
+            # Check for numbered lists
+            elif line and line[0].isdigit() and '. ' in line[:4]:
+                list_text = line.split('. ', 1)[1] if '. ' in line else line
+                p = doc.add_paragraph(style='List Number')
+                self._add_formatted_text(p, list_text)
+            else:
+                # Regular paragraph
+                p = doc.add_paragraph()
+                self._add_formatted_text(p, line)
+            
+            i += 1
         
         doc_bytes = io.BytesIO()
         doc.save(doc_bytes)
         doc_bytes.seek(0)
         return doc_bytes.getvalue()
+    
+    def _add_formatted_text(self, paragraph, text: str):
+        """Add text to paragraph with Markdown formatting converted to Word formatting."""
+        import re
+        
+        # Pattern to match **bold**, *italic*, and plain text
+        # This regex splits on markdown markers while keeping them
+        parts = re.split(r'(\*\*.*?\*\*|\*.*?\*|`.*?`)', text)
+        
+        for part in parts:
+            if not part:
+                continue
+            if part.startswith('**') and part.endswith('**'):
+                # Bold text
+                run = paragraph.add_run(part[2:-2])
+                run.bold = True
+            elif part.startswith('*') and part.endswith('*') and not part.startswith('**'):
+                # Italic text
+                run = paragraph.add_run(part[1:-1])
+                run.italic = True
+            elif part.startswith('`') and part.endswith('`'):
+                # Code/monospace text
+                run = paragraph.add_run(part[1:-1])
+                run.font.name = 'Courier New'
+            else:
+                # Plain text
+                paragraph.add_run(part)
 
-    def create_pdf_document(self, content):
-        """Create a PDF document with the generated content"""
+    def create_pdf_document(self, content: str) -> bytes:
+        """
+        Create a PDF document with the generated content and professional formatting.
+        
+        This method converts the generated content into a properly formatted
+        PDF document with custom styles, headings, and spacing. Requires
+        ReportLab library to be installed.
+        
+        Args:
+            content (str): The generated document content with markdown-style formatting
+        
+        Returns:
+            bytes: The PDF document as bytes for file writing
+        
+        Raises:
+            ImportError: If ReportLab library is not installed
+        
+        Example:
+            >>> content = "# Title\n\nThis is a paragraph with content."
+            >>> pdf_bytes = doc_gen.create_pdf_document(content)
+            >>> with open("document.pdf", "wb") as f:
+            ...     f.write(pdf_bytes)
+        """
         if not REPORTLAB_AVAILABLE:
             raise ImportError("ReportLab library is not installed. Please install it with: pip install reportlab")
+        
+        # Clean content first
+        content = self._clean_content(content)
         
         pdf_bytes = io.BytesIO()
         doc = SimpleDocTemplate(pdf_bytes, pagesize=letter)
@@ -316,35 +587,83 @@ Write detailed, professional content that thoroughly covers this section with su
             spaceAfter=8,
         )
         
-        story = []
-        paragraphs = content.split('\n\n')
         
-        for i, paragraph in enumerate(paragraphs):
-            if paragraph.strip():
-                if i == 0:  # First paragraph as title
-                    story.append(Paragraph(paragraph.strip()[:100], title_style))
-                    story.append(Spacer(1, 12))
-                elif paragraph.strip().startswith('# '):
-                    # Main headings
-                    heading_text = paragraph.strip().replace('# ', '')
-                    story.append(Paragraph(heading_text, heading_style))
-                    story.append(Spacer(1, 6))
-                elif paragraph.strip().startswith('## '):
-                    # Sub headings
-                    heading_text = paragraph.strip().replace('## ', '')
-                    story.append(Paragraph(heading_text, subheading_style))
-                    story.append(Spacer(1, 4))
-                else:
-                    # Regular paragraphs
-                    story.append(Paragraph(paragraph.strip(), styles['Normal']))
-                    story.append(Spacer(1, 12))
+        story = []
+        lines = content.split('\n')
+        
+        for line in lines:
+            line = line.strip()
+            
+            if not line:
+                story.append(Spacer(1, 12))
+                continue
+                
+            # Check for headings
+            if line.startswith('# '):
+                heading_text = line.replace('# ', '', 1)
+                # Remove markdown from heading text
+                heading_text = self._strip_markdown(heading_text)
+                story.append(Paragraph(heading_text, heading_style))
+                story.append(Spacer(1, 6))
+            elif line.startswith('## '):
+                heading_text = line.replace('## ', '', 1)
+                heading_text = self._strip_markdown(heading_text)
+                story.append(Paragraph(heading_text, subheading_style))
+                story.append(Spacer(1, 4))
+            else:
+                # Regular paragraphs - convert markdown to HTML for ReportLab
+                formatted_text = self._markdown_to_html(line)
+                story.append(Paragraph(formatted_text, styles['Normal']))
+                story.append(Spacer(1, 12))
         
         doc.build(story)
         pdf_bytes.seek(0)
         return pdf_bytes.getvalue()
+    
+    def _strip_markdown(self, text: str) -> str:
+        """Remove all Markdown syntax from text."""
+        import re
+        # Remove bold
+        text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
+        # Remove italic
+        text = re.sub(r'\*(.*?)\*', r'\1', text)
+        # Remove code
+        text = re.sub(r'`(.*?)`', r'\1', text)
+        return text
+    
+    def _markdown_to_html(self, text: str) -> str:
+        """Convert Markdown formatting to HTML for ReportLab."""
+        import re
+        # Convert **bold** to <b>bold</b>
+        text = re.sub(r'\*\*(.*?)\*\*', r'<b>\1</b>', text)
+        # Convert *italic* to <i>italic</i>
+        text = re.sub(r'\*(.*?)\*', r'<i>\1</i>', text)
+        # Convert `code` to monospace
+        text = re.sub(r'`(.*?)`', r'<font name="Courier">\1</font>', text)
+        return text
 
-    def create_text_document(self, content):
-        """Create a plain text document with the generated content"""
+    def create_text_document(self, content: str) -> bytes:
+        """
+        Create a plain text document with the generated content.
+        
+        This method converts the generated content into a clean plain text
+        format by removing markdown formatting and adding a simple header.
+        
+        Args:
+            content (str): The generated document content with markdown-style formatting
+        
+        Returns:
+            bytes: The text document as bytes for file writing
+        
+        Example:
+            >>> content = "# Title\n\nThis is a paragraph with content."
+            >>> text_bytes = doc_gen.create_text_document(content)
+            >>> with open("document.txt", "wb") as f:
+            ...     f.write(text_bytes)
+        """
+        # Clean content first
+        content = self._clean_content(content)
+        
         # Clean up the content for plain text
         text_content = content.replace('# ', '')
         text_content = text_content.replace('## ', '')
@@ -357,15 +676,54 @@ Write detailed, professional content that thoroughly covers this section with su
         final_content = header + text_content
         return final_content.encode('utf-8')
 
-    def generate_document(self, content_type, pages, subject, file_format):
-        """Main document generation orchestrator"""
+    def generate_document(
+        self, 
+        content_type: str, 
+        pages: int, 
+        subject: str, 
+        file_format: str
+    ) -> Tuple[str, str]:
+        """
+        Main document generation orchestrator.
+        
+        This method coordinates the entire document generation process, choosing
+        between single-call and iterative approaches based on document length,
+        then formatting the content into the requested output format.
+        
+        Args:
+            content_type (str): Type of document to generate. Must be one of:
+                - "whitepaper": Technical analysis and methodology
+                - "article": In-depth analysis with case studies
+                - "report": Business analysis with strategic recommendations
+                - "proposal": Project proposals with timelines and budgets
+                - "design": IT system design and architecture documents
+            pages (int): Target number of pages for the document
+            subject (str): Subject/topic for the document content
+            file_format (str): Output format. Must be one of:
+                - "Word Document (.docx)"
+                - "PDF Document (.pdf)"
+                - "Text File (.txt)"
+        
+        Returns:
+            Tuple[str, str]: (file_path, status_message)
+                - file_path: Path to the generated document file
+                - status_message: Success message with generation details
+        
+        Example:
+            >>> doc_gen = DocumentGenerator(data_gen)
+            >>> path, status = doc_gen.generate_document(
+            ...     "article", 5, "AI Governance", "Word Document (.docx)"
+            ... )
+            >>> print(f"Generated: {path}")
+            >>> print(status)
+        """
         # Use iterative approach for longer documents (3+ pages)
         if pages >= 3:
             content = self.generate_document_content_iterative(content_type, pages, subject)
-            print(f"✅ Used iterative approach for {pages} pages")
+            print(f" Used iterative approach for {pages} pages")
         else:
             content = self.generate_document_content(content_type, pages, subject)
-            print(f"✅ Used standard approach for {pages} pages")
+            print(f" Used standard approach for {pages} pages")
         
         if file_format == "Word Document (.docx)":
             file_bytes = self.create_word_document(content)
@@ -382,4 +740,4 @@ Write detailed, professional content that thoroughly covers this section with su
             tmp_file.write(file_bytes)
             temp_path = tmp_file.name
         
-        return temp_path, f"✅ Generated {pages}-page {content_type} about '{subject}' successfully!"
+        return temp_path, f" Generated {pages}-page {content_type} about '{subject}' successfully!"
