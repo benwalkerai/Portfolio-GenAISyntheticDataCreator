@@ -1,27 +1,8 @@
 #!/usr/bin/env python3
-"""
-Synthetic Data Generator - Main Entry Point
+"""Main entry point for the Synthetic Data Generator UI.
 
-This is the primary entry point for the Synthetic Data Generator application.
-It launches the Gradio web interface that provides an intuitive UI for generating
-synthetic data files and documents using local Ollama LLM models.
-
-Features:
-- Web-based interface for easy data generation
-- Support for CSV and Excel data files
-- Document generation (Word, PDF, Text, Markdown)
-- Real-time preview and validation
-- Advanced options for data realism
-- Local LLM integration via Ollama
-
-Usage:
-    python main.py
-
-The application will start a web server accessible at http://localhost:7860
-and provide a user-friendly interface for generating synthetic data.
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
+Starts the Gradio web interface for generating datasets and documents via
+local LLMs.
 """
 
 from ui.interface import create_gradio_app

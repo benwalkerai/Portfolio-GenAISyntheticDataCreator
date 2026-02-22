@@ -1,39 +1,8 @@
 #!/usr/bin/env python3
-"""
-Command-line entrypoint for Synthetic Data Generator
+"""Command-line entry point for the Synthetic Data Generator.
 
-This module provides a comprehensive command-line interface for generating synthetic
-data files and documents without using the web UI. It offers the same generation
-capabilities as the Gradio interface but through a terminal-based workflow.
-
-Key Features:
-- Generate CSV and Excel data files with realistic data
-- Create professional documents in multiple formats
-- Advanced data realism options via command-line flags
-- Batch processing capabilities
-- Flexible output directory configuration
-- Integration with the same generation pipeline as the web UI
-
-Supported Output Formats:
-- Data Files: CSV (.csv), Excel (.xlsx)
-- Documents: Word (.docx), PDF (.pdf), Text (.txt), Markdown (.md)
-
-Usage Examples:
-    # Data files
-    python create_data.py --csv --subject "Financial records" --rows 1000 --columns 25 -d C:\\Temp\\synth-data
-    python create_data.py --xlsx --subject "Product catalog" --rows 500 --columns 12 -d C:\\Temp\\synth-data
-
-    # Documents
-    python create_data.py --md --subject "AI Governance" --pages 4 --doc-type report -d C:\\Temp\\synth-docs
-    python create_data.py --docx --subject "Zero Trust Security" --pages 5 --doc-type whitepaper -d C:\\Temp\\synth-docs
-    python create_data.py --pdf --subject "Cloud Cost Optimization" --pages 3 --doc-type article -d C:\\Temp\\synth-docs
-    python create_data.py --txt --subject "SRE Playbook" --pages 2 --doc-type design -d C:\\Temp\\synth-docs
-
-This CLI calls the same generators used by the Gradio UI, ensuring consistency
-between web and command-line interfaces.
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
+Generates CSV/XLSX datasets and document formats (DOCX/PDF/TXT/MD) using the
+same pipeline as the web UI.
 """
 
 import argparse

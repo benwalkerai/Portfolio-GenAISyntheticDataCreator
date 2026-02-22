@@ -1,62 +1,11 @@
-"""
-Product Constraints and Validation Rules - Realistic data validation for product catalogs.
-
-This module provides comprehensive constraint definitions and validation rules for
-generating realistic product data across different categories. It ensures that
-generated product data follows real-world patterns, specifications, and relationships
-that would be found in actual product catalogs.
-
-Key Features:
-- Category-specific constraints for electronics and consumer products
-- Realistic value ranges based on market research
-- Automatic validation and correction of generated data
-- Support for complex relationships between product attributes
-- Model number generation with proper prefixes and patterns
-- Price range validation based on product category
-
-Supported Product Categories:
-- Smartphones: Flagship, Mid-Range, Budget, Foldable, Gaming
-- Laptops: Ultrabook, Gaming, Business, 2-in-1, Workstation
-- Tablets: Standard, Pro, Kids, E-Reader
-- Smartwatches: Fitness, Luxury, Sport, Hybrid
-- Headphones: Over-Ear, On-Ear, In-Ear, Gaming, Studio
-- Monitors: Gaming, Professional, Ultrawide, 4K, Curved
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Constraints and validation rules for product catalogs."""
 
 from typing import Dict, List, Tuple, Any, Optional, Callable
 import random
 
 
 class ProductConstraints:
-    """
-    Defines realistic constraints and validation rules for different product categories.
-    
-    This class provides comprehensive constraint definitions for generating realistic
-    product data across various electronics and consumer product categories. It ensures
-    that generated data follows real-world patterns, specifications, and relationships
-    found in actual product catalogs.
-    
-    The constraints are based on market research and real product specifications,
-    providing realistic ranges for attributes like weight, dimensions, processor types,
-    RAM, storage, battery life, screen size, and pricing.
-    
-    Attributes:
-        CONSTRAINTS (Dict[str, Dict[str, Any]]): Category-specific constraint definitions
-            Each category contains realistic ranges and valid values for product attributes
-    
-    Example:
-        >>> constraints = ProductConstraints.get_constraint("Smartphone", "price_range")
-        >>> print(constraints)
-        (299, 1599)
-        
-        >>> fixed_row = ProductConstraints.validate_and_fix_row({
-        ...     "category": "Laptop", "weight_grams": 500, "price": 200
-        ... })
-        >>> print(fixed_row["weight_grams"])  # Will be corrected to realistic range
-    """
+    """Define and validate category-specific product constraints."""
     
     # Category-specific constraints based on real-world product specifications
     CONSTRAINTS: Dict[str, Dict[str, Any]] = {

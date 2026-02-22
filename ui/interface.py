@@ -1,21 +1,4 @@
-"""
-Gradio User Interface for the Synthetic Data Generator.
-
-This module provides a comprehensive web-based interface for generating synthetic data
-in various formats including Excel, CSV, Word documents, text files, and PDFs.
-The interface features dynamic UI updates based on selected file format and includes
-advanced options for data generation customization.
-
-Key Features:
-- Dynamic UI that adapts to different file formats
-- Support for both document-based (pages) and data-based (rows/columns) formats
-- Advanced options for data quality and realism
-- Real-time preview of generated data
-- Progress tracking and status updates
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Gradio UI for generating datasets and documents."""
 
 import gradio as gr
 from typing import List, Tuple, Optional, Any, Dict, Union
@@ -23,27 +6,12 @@ from config.settings import file_format_options, REPORTLAB_AVAILABLE
 from utils.helpers import update_options, generate_synthetic_data
 
 def create_gradio_app() -> gr.Blocks:
-    """
-    Create and configure the Gradio interface for synthetic data generation.
-    
-    This function builds a comprehensive web interface with:
-    - File format selection (Excel, CSV, Word, Text, PDF)
-    - Dynamic UI components that adapt based on selected format
-    - Advanced data generation options
-    - Real-time preview and status updates
-    
-    Returns:
-        gr.Blocks: The configured Gradio interface application.
-    
-    Example:
-        >>> app = create_gradio_app()
-        >>> app.launch(share=True)
-    """
+    """Create and configure the Gradio interface."""
     
     with gr.Blocks(title="Synthetic Data Generator", theme=gr.themes.Base()) as app:
         # Main header and description
         gr.Markdown("# Synthetic Data Generator")
-        gr.Markdown("Generate synthetic documents and datasets using **GenAI** with intelligent column generation and realistic data creation.")
+        gr.Markdown("Generate synthetic documents and datasets with configurable settings.")
         
         with gr.Tabs():
             with gr.Tab("Generator"):
@@ -62,7 +30,7 @@ def create_gradio_app() -> gr.Blocks:
                         subject_input_text = gr.Textbox(
                             label="Subject/Topic",
                             value="",
-                            info="This topic will be used by AI to generate realistic column headers and data content",
+                            info="Used to generate column headers and data content",
                             lines=2,
                             visible=False  # Initially hidden, shown for document formats
                         )
@@ -172,9 +140,9 @@ def create_gradio_app() -> gr.Blocks:
                         gr.Markdown("""
                         ### Generation Process
                         **For Excel/CSV Files:**
-                        1. AI generates column headers based on your subject
+                        1. Column headers are generated based on your subject
                         2. System detects data types for each column  
-                        3. AI creates realistic data matching each column type
+                        3. Values are generated to match each column type
                         4. File is generated and ready for download
                         """)
 

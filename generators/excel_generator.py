@@ -1,32 +1,4 @@
-"""
-Enhanced Synthetic Data Generator for Structured Files.
-
-This module provides a comprehensive solution for generating highly realistic, 
-relationship-aware synthetic data using LLM-driven generation with statistical 
-distributions, temporal coherence, and domain-specific constraints.
-
-The ExcelGenerator class is the core component that creates synthetic data for
-Excel and CSV formats with advanced features including:
-- Multi-prompt LLM usage for schema, constraints, values, and validation
-- Statistical distribution modeling (log-normal for salaries, power-law for transactions)
-- Temporal coherence with seasonal patterns and realistic date ranges
-- Correlation preservation between related fields (ages, salaries, dates)
-- Geographic consistency validation across countries and regions
-- Realistic error patterns and data quality issues
-- Domain-specific constraint generation based on subject matter
-
-Key Features:
-- Intelligent column header generation using LLM
-- Realistic data value generation with proper distributions
-- Cross-field correlation enforcement
-- Geographic and temporal consistency
-- Advanced data quality validation
-- Caching for improved performance
-- Fallback mechanisms for reliability
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Synthetic data generation for Excel and CSV formats."""
 
 import os
 import sys
@@ -51,26 +23,7 @@ except ImportError:
 
 
 class ExcelGenerator:
-    """
-    Generates realistic, relationship-aware synthetic data for Excel and CSV formats.
-    
-    This class provides comprehensive synthetic data generation capabilities with
-    advanced features including LLM integration, statistical modeling, and data
-    quality validation. It supports multiple data types, geographic regions,
-    and industry-specific constraints.
-    
-    Attributes:
-        data_generator: The underlying data generator instance for LLM integration
-        llm_cache (Dict[str, Any]): Cache for LLM responses to improve performance
-        domain_constraints (Dict[str, Any]): Domain-specific constraints for data generation
-        _country_city_cache (Dict[str, List[str]]): Cache for country-city mappings
-    
-    Example:
-        >>> from utils.helpers import DataGenerator
-        >>> data_gen = DataGenerator()
-        >>> excel_gen = ExcelGenerator(data_gen)
-        >>> df = excel_gen.generate_data("Product Catalogue", 1000, 10)
-    """
+    """Generate Excel/CSV data with LLM-assisted schema and value generation."""
     
     # ==================== ENHANCED DATA DICTIONARIES ====================
     # These dictionaries contain realistic data patterns for various domains

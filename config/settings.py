@@ -1,14 +1,4 @@
-"""
-Configuration settings for the Synthetic Data Generator.
-
-This module contains all configuration settings, file format definitions,
-and constants used throughout the synthetic data generation system.
-It provides a centralized location for managing application settings
-and ensures consistent behavior across different components.
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Configuration settings and file format definitions."""
 
 from typing import Dict, List, Any, Optional, Union
 

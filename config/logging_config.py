@@ -1,12 +1,4 @@
-"""
-Logging configuration for the Synthetic Data Generator.
-
-This module provides a centralized setup for logging, ensuring that logs are
-written to both the console and a rotating log file in the 'logs' directory.
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Logging setup for console and rotating file output."""
 
 import os
 import logging

@@ -1,29 +1,4 @@
-"""
-Document Generator Module - AI-powered document creation.
-
-This module provides comprehensive document generation capabilities for creating
-realistic synthetic documents in multiple formats including Word (.docx), PDF (.pdf),
-and plain text (.txt). It supports various document types with intelligent content
-generation and professional formatting.
-
-Key Features:
-- Multiple document types: whitepapers, articles, reports, proposals, design docs
-- Intelligent content generation with LLM integration
-- Professional formatting and structure
-- Iterative generation for longer documents
-- Multiple output formats with proper styling
-- Automatic content length management
-
-Supported Document Types:
-- Whitepapers: Technical analysis and methodology
-- Articles: In-depth analysis with case studies
-- Reports: Business analysis with strategic recommendations
-- Proposals: Project proposals with timelines and budgets
-- Design: IT system design and architecture documents
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Document generation for Word, PDF, and text formats."""
 
 import io
 import tempfile
@@ -44,26 +19,7 @@ except ImportError:
 
 
 class DocumentGenerator:
-    """
-    AI-powered document generator for creating realistic synthetic documents.
-    
-    This class provides comprehensive document generation capabilities using
-    LLM integration to create professional-quality documents in multiple formats.
-    It supports various document types with intelligent content generation,
-    proper formatting, and automatic length management.
-    
-    Attributes:
-        data_generator: Reference to the main data generator for LLM access
-        REPORTLAB_AVAILABLE (bool): Whether PDF generation is available
-    
-    Example:
-        >>> from generators.data_generator import SyntheticDataGenerator
-        >>> data_gen = SyntheticDataGenerator()
-        >>> doc_gen = DocumentGenerator(data_gen)
-        >>> path, status = doc_gen.generate_document(
-        ...     "article", 5, "AI Governance", "Word Document (.docx)"
-        ... )
-    """
+    """Generate document content and format output files."""
     
     def __init__(self, data_generator: Any) -> None:
         """

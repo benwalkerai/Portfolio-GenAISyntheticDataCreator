@@ -1,13 +1,4 @@
-"""
-Synthetic Data Generator - Main orchestrator for data and document generation.
-
-This module provides the main SyntheticDataGenerator class that coordinates
-between different generation engines (Excel/CSV and document generation) and
-manages LLM integration through OpenAI-compatible APIs.
-
-Author: Ben Walker (https://github.com/benwalkerai)
-Version: 1.0.0
-"""
+"""Main orchestrator for data and document generation."""
 
 from typing import Optional, Dict, Any, Tuple
 from openai import OpenAI
@@ -17,21 +8,7 @@ from .excel_generator import ExcelGenerator
 
 
 class SyntheticDataGenerator:
-    """
-    Main orchestrator for synthetic data and document generation.
-    
-    This class coordinates between different generation engines and manages
-    LLM integration through OpenAI-compatible APIs.
-    
-    Attributes:
-        api_base_url (str): Base URL for the LLM API
-        api_key (str): API key for authentication
-        model_name (str): Name of the LLM model to use
-        client (OpenAI): OpenAI client instance for API calls
-        document_generator (DocumentGenerator): Document generation engine
-        excel_generator (ExcelGenerator): Excel/CSV generation engine
-
-    """
+    """Coordinate document and tabular data generation via the LLM client."""
     
     def __init__(self, use_llama4: bool = False) -> None:
         """

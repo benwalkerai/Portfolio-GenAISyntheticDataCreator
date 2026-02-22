@@ -1,42 +1,42 @@
 # Synthetic Data Generator
 
-An intelligent synthetic data generation application powered by **Local LLMs** (Ollama, llama.cpp, etc.) with a user-friendly Gradio web interface. Generate realistic datasets and documents in multiple formats for testing, development, and machine learning applications.
+Synthetic data generation app using **Local LLMs** (Ollama, llama.cpp, etc.) with a Gradio web interface. Generates datasets and documents in multiple formats for testing and development.
 
 ![Python Version](https://img.shields.io/badge/python-3.8%2B-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Gradio](https://img.shields.io/badge/UI-Gradio-orange)
 
-## 🌟 Features
+## Features
 
 ### Data Generation
-- **CSV & Excel Files**: Generate structured tabular data with realistic values
-- **Smart Schema Detection**: LLM-powered column header generation based on subject matter
-- **Statistical Realism**: Log-normal distributions for salaries, power-law for transactions
-- **Temporal Coherence**: Realistic date ranges with seasonal patterns
+- **CSV & Excel Files**: Generate structured tabular data
+- **Schema Detection**: LLM-powered column header generation based on subject matter
+- **Statistical Distributions**: Log-normal distributions for salaries, power-law for transactions
+- **Temporal Consistency**: Date ranges with seasonal patterns
 - **Geographic Consistency**: Validated country-city relationships
-- **Correlation Preservation**: Related fields maintain realistic relationships
+- **Correlation Preservation**: Related fields maintain relationships
 
 ### Document Generation
 - **Multiple Formats**: Word (.docx), PDF (.pdf), Text (.txt), Markdown (.md)
 - **Document Types**: Whitepapers, articles, reports, proposals, design documents
-- **Professional Formatting**: Automatic styling and structure
+- **Formatting**: Automatic styling and structure
 - **Iterative Generation**: Handles long-form content with multiple LLM calls
 
-### Advanced Features
-- **Product Catalog Generator**: Specialized fast-path for realistic product data
+### Additional Features
+- **Product Catalog Generator**: Fast-path for product data
 - **Domain Constraints**: Category-specific validation rules (electronics, automotive, etc.)
-- **Data Quality Options**: Control realism, correlations, and error patterns
+- **Data Quality Options**: Control correlations and error patterns
 - **Preview & Validation**: Real-time data preview before download
 - **Batch Processing**: CLI support for automated generation
 
-## 📋 Requirements
+## Requirements
 
 - **Python**: 3.8 or higher
 - **Local LLM Server**: REQUIRED. You must have a local LLM server running (e.g., [Ollama](https://ollama.ai) or [llama.cpp](https://github.com/ggerganov/llama.cpp)).
 - **Memory**: 4GB RAM minimum (8GB+ recommended for 7B models)
 - **Storage**: ~500MB for dependencies
 
-## 🚀 Installation & Setup
+## Installation & Setup
 
 ### 1. Clone the Repository
 
@@ -86,7 +86,7 @@ You can run the application in a container. Note that to access a local LLM runn
 docker-compose up --build
 ```
 
-## 📖 Usage Guide
+## Usage Guide
 
 ### Web Interface
 
@@ -146,7 +146,7 @@ uv run create_data.py --docx --subject "Future of AI" --pages 10 --doc-type whit
 | | `--missingness FLOAT` | Rate of missing values (0.0 - 0.3) |
 
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 synthetic-data-generator/
@@ -162,7 +162,7 @@ synthetic-data-generator/
 └── requirements.txt           # Python dependencies
 ```
 
-## 🔧 Configuration
+## Configuration
 
 ### LLM Settings
 
@@ -171,18 +171,18 @@ Use the `.env` file to control your LLM connection. The application uses the sta
 - **LLM_API_BASE**: The endpoint URL (must include `/v1` usually).
 - **LLM_MODEL**: The exact model name string.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions are welcome!
 - Additional file formats (JSON, Parquet, SQL)
 - More document types (presentations, spreadsheets)
 - Enhanced validation rules
 
-## 📝 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - Built with [Gradio](https://gradio.app) for the web interface
 - Powered by Local LLMs (Ollama, llama.cpp)
