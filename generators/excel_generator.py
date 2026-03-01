@@ -1,5 +1,3 @@
-"""Synthetic data generation for Excel and CSV formats."""
-
 import os
 import sys
 import re
@@ -8,29 +6,16 @@ import random
 import traceback
 import tempfile
 from datetime import datetime, timedelta
-from typing import Dict, List, Tuple, Any, Optional
-
 import numpy as np
 import pandas as pd
-
-# Add utils to path for product constraints
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 try:
     from utils.product_constraints import ProductConstraints
 except ImportError:
     print("ProductConstraints not found, using built-in constraints")
-    ProductConstraints = None # type: ignore
-
-
+    ProductConstraints = None
 class ExcelGenerator:
-    """Generate Excel/CSV data with LLM-assisted schema and value generation."""
-    
-    # ==================== ENHANCED DATA DICTIONARIES ====================
-    # These dictionaries contain realistic data patterns for various domains
-    # and are used as fallbacks when LLM generation fails or for performance optimization.
-    
-    # Product catalog data with realistic pricing, lifecycle, and seasonal patterns
-    _PRODUCT_NAMES: Dict[str, Dict[str, Any]] = {
+    _PRODUCT_NAMES = {
         'Electronics': {
             'items': [
                 ('Quantum', 'Display', ['4K', '8K', 'QLED', 'MicroLED'], (799.99, 3499.99)),
@@ -93,9 +78,7 @@ class ExcelGenerator:
             'seasonality': {'Q4': 1.0, 'Q1': 1.1, 'Q2': 1.0, 'Q3': 0.9}
         }
     }
-    
-    # Geographic data with currency, phone formats, and regional multipliers
-    _LOCATIONS: Dict[str, Dict[str, Any]] = {
+    _LOCATIONS = {
         'USA': {
             'states': ['CA', 'NY', 'TX', 'FL', 'IL', 'WA', 'MA', 'CO', 'GA', 'NC'],
             'cities': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Seattle', 
@@ -162,7 +145,6 @@ class ExcelGenerator:
             'decimal_separator': '.'
         }
     }
-    # Create aliases for case-insensitive lookups
     LOCATIONS_ALIASES = {
         'Usa': 'USA',
         'usa': 'USA', 
@@ -173,9 +155,7 @@ class ExcelGenerator:
         'It': 'IT',
         'it': 'IT'
 }
-    
-    # International name databases for culturally appropriate name generation
-    _INTERNATIONAL_NAMES: Dict[str, Dict[str, List[str]]] = {
+    _INTERNATIONAL_NAMES = {
         'Anglo': {
             'first': ['John', 'Jane', 'Michael', 'Emily', 'David', 'Laura', 'Robert', 'Sarah'],
             'last': ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones', 'Miller']
@@ -193,99 +173,35 @@ class ExcelGenerator:
             'last': ['Muller', 'Garcia', 'Rossi', 'Weber']
         }
     }
-
-    _INDUSTRY_KEYWORDS: Dict[str, List[str]] = {
+    _INDUSTRY_KEYWORDS = {
         'generic': ['Solutions', 'Systems', 'Services', 'Works'],
         'tech': ['Technologies', 'Labs', 'Systems', 'Soft'],
         'finance': ['Capital', 'Investments', 'Holdings'],
         'manufacturing': ['Manufacturing', 'Industries', 'Supply'],
         'healthcare': ['Health', 'Medical', 'Care']
     }
-
-    _DOMAINS: List[str] = ['example.com', 'company.com', 'corporate.com']
-    
-    # Street name components for realistic address generation
-    _STREET_NAMES: List[str] = ['Maple', 'Oak', 'Pine', 'Cedar', 'Elm', 'Washington', 'Main', 'Park', 
+    _DOMAINS = ['example.com', 'company.com', 'corporate.com']
+    _STREET_NAMES = ['Maple', 'Oak', 'Pine', 'Cedar', 'Elm', 'Washington', 'Main', 'Park', 
                     'Sunset', 'River', 'Lake', 'Hill', 'Valley', 'Forest', 'Meadow', 'Spring',
                     'Grove', 'Ridge', 'Bay', 'Shore']
-    
-    # Street type abbreviations for address formatting
-    _STREET_TYPES: List[str] = ['St', 'Ave', 'Blvd', 'Rd', 'Ln', 'Dr', 'Ct', 'Way', 'Pl', 'Ter', 'Cir']
-    
-    def __init__(self, data_generator: Any) -> None:
-        """
-        Initialize the Excel Generator with LLM integration.
-        
-        Args:
-            data_generator: The underlying data generator instance that provides
-                          LLM integration capabilities for generating realistic data.
-        
-        Attributes:
-            data_generator: Reference to the provided data generator
-            llm_cache (Dict[str, Any]): Cache for LLM responses to improve performance
-            domain_constraints (Dict[str, Any]): Storage for domain-specific constraints
-            _country_city_cache (Dict[str, List[str]]): Cache for country-city mappings
-        """
+    _STREET_TYPES = ['St', 'Ave', 'Blvd', 'Rd', 'Ln', 'Dr', 'Ct', 'Way', 'Pl', 'Ter', 'Cir']
+    def __init__(self, data_generator: Any) :
         self.data_generator = data_generator
-        self.llm_cache: Dict[str, Any] = {}  # Cache LLM responses for performance
-        self.domain_constraints: Dict[str, Any] = {}  # Store domain-specific constraints
-        self._active_generation_options: Dict[str, Any] = {}
-        
-    def clear_cache(self) -> None:
-        """
-        Clear all cached LLM responses and geographic data.
-        
-        This method should be called before each new data generation to ensure
-        fresh, unique data is created rather than reusing cached responses.
-        """
+        self.llm_cache = {}
+        self.domain_constraints = {}
+        self._active_generation_options = {}
+    def clear_cache(self) :
         self.llm_cache.clear()
         if hasattr(self, 'country_city_cache'):
             self.country_city_cache.clear()
         print("ExcelGenerator cache cleared")
-
-    def get_country_cities_from_llm(self, countries: List[str]) -> Dict[str, List[str]]:
-        """
-        Generate valid city lists for given countries using LLM with caching.
-        
-        This method generates realistic city names for specified countries using
-        LLM integration. It implements a multi-tier approach:
-        1. Static cache for known countries (fastest)
-        2. LLM generation for unknown countries
-        3. Fallback to generic cities if LLM fails
-        
-        Args:
-            countries (List[str]): List of country names to generate cities for.
-                                 Case-insensitive matching is supported.
-        
-        Returns:
-            Dict[str, List[str]]: Dictionary mapping country names to lists of cities.
-                                Each country will have 6 major cities.
-        
-        Example:
-            >>> generator = ExcelGenerator(data_gen)
-            >>> cities = generator.get_country_cities_from_llm(['USA', 'Canada', 'Japan'])
-            >>> print(cities['USA'])
-            ['New York', 'Los Angeles', 'Chicago', ...]
-        
-        Note:
-            Results are cached to avoid repeated API calls for the same countries.
-            The method prioritizes performance by using static data for known countries.
-        """
+    def get_country_cities_from_llm(self, countries: List[str]) :
         import json
-        
-        # Initialize cache if it doesn't exist
         if not hasattr(self, '_country_city_cache'):
-            self._country_city_cache: Dict[str, List[str]] = {}
-        
-        # Check cache first to avoid redundant API calls
+            self._country_city_cache = {}
         uncached_countries = [c for c in countries if c not in self._country_city_cache]
-        
-        # Return cached results if all countries are already cached
         if not uncached_countries:
             return self._country_city_cache
-        
-        # Static fallback for known countries (fastest performance)
-        # This provides immediate results for common countries without API calls
         KNOWN_CITIES = {
             'USA': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'],
             'Usa': ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix', 'Philadelphia'],
@@ -297,115 +213,72 @@ class ExcelGenerator:
             'Germany': ['Berlin', 'Munich', 'Frankfurt', 'Hamburg', 'Cologne', 'Stuttgart'],
             'India': ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata']
         }
-        
         known_count = 0
         unknown = []
-        
-        # Process countries using static data for known countries
         for country in uncached_countries:
             if country in KNOWN_CITIES:
                 self._country_city_cache[country] = KNOWN_CITIES[country]
                 known_count += 1
             else:
                 unknown.append(country)
-        
-        # Log performance metrics for static lookups
         if known_count > 0:
-            print(f"[STATIC] Used real cities for {known_count} known countries")
-        
-        # Use LLM for unknown countries that aren't in static cache
+            print(f"Used real cities for {known_count} known countries")
         if unknown:
-            print(f"[LLM] Generating cities for unknown countries: {unknown}")
+            print(f"Generating cities for {len(unknown)} unknown countries")
             countries_str = ', '.join(unknown)
-            
             prompt = f"""List 6 major cities for each country. Return ONLY valid JSON.
-
     Countries: {countries_str}
-
     Format (exact):
     {{"CountryName": ["City1", "City2", "City3", "City4", "City5", "City6"]}}
-
     JSON only, no explanation:"""
-            
             try:
-                # Call LLM
                 response = self.data_generator.generate_with_ollama(prompt, max_tokens=800)
-                
-                print(f"[LLM] Response: {response[:100]}...")
-                
-                # Parse JSON
                 cleaned = response.strip()
-                
-                # Remove markdown code fences
                 if cleaned.startswith('```'):
-                    # Handle ```json ... ``` or ``` ... ```
                     cleaned = re.sub(r'^```(json)?\s*', '', cleaned)
                     cleaned = re.sub(r'```\s*$', '', cleaned)
-
-                # Extract JSON
                 if '{' in cleaned and '}' in cleaned:
                     start = cleaned.index('{')
                     end = cleaned.rindex('}') + 1
                     json_str = cleaned[start:end]
-                    
                     cities_data = json.loads(json_str)
-                    
-                    # Validate
                     for country, cities in cities_data.items():
                         if isinstance(cities, list) and len(cities) > 0:
                             self._country_city_cache[country] = cities
-                    
-                    print(f"[LLM] Generated {len(cities_data)} countries")
+                    print(f"Generated cities for {len(cities_data)} countries")
                 else:
-                    print(f"[LLM] No JSON found in response")
-            
+                    print(f"No JSON found in response")
             except Exception as e:
-                print(f"[LLM] Error: {e}")
-                # Use generic fallback
+                print(f"City generation error: {e}")
                 for country in unknown:
                     self._country_city_cache[country] = ['Capital City', 'Major City', 'Port City', 'Urban Center', 'Regional Hub', 'Metro Area']
-        
         return self._country_city_cache
-
-    def apply_country_city_fix(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Apply country-city fixes without pandas warnings
-        """
+    def apply_country_city_fix(self, df: pd.DataFrame) :
         if 'Country' not in df.columns or 'City' not in df.columns:
             return df
-        
         unique_countries = df['Country'].dropna().unique().tolist()
-        
         if not unique_countries:
             return df
-        
         COUNTRY_CITIES = self.get_country_cities_from_llm(unique_countries)
-        
         fixes = 0
         for idx in range(len(df)):
             country = df.at[idx, 'Country']
             city = df.at[idx, 'City']
-            
             if pd.notna(country) and pd.notna(city):
                 valid_cities = COUNTRY_CITIES.get(country, [])
                 if len(valid_cities) > 0 and city not in valid_cities:
                     df.at[idx, 'City'] = random.choice(valid_cities)
                     fixes += 1
-        
         if fixes > 0:
             print(f"   Fixed {fixes} country-city mismatches with real cities")
-        
         return df
-    
-    def extract_json(self, text: str) -> Optional[str]:
-        """Extract JSON from LLM response, handling various formats including arrays."""
+    def extract_json(self, text: str) :
         patterns = [
-            r'```json\s*(.*?)\s*```',  # Markdown JSON block
-            r'```\s*(.*?)\s*```',       # Plain code block
-            r'(\[.*?\])',               # JSON Array
-            r'(\{.*?\})'                # JSON Object
+            r'```json\s*(.*?)\s*```',
+            r'```\s*(.*?)\s*```',
+            r'(\[.*?\])',
+            r'(\{.*?\})'
         ]
-        
         for pattern in patterns:
             match = re.search(pattern, text, re.DOTALL)
             if match:
@@ -415,17 +288,12 @@ class ExcelGenerator:
                     return candidate
                 except:
                     continue
-        
-        # Last resort: find first {/[ to last }/]
         try:
-            # Try to find array first
             start_arr, end_arr = text.find('['), text.rfind(']')
             if start_arr != -1 and end_arr != -1 and end_arr > start_arr:
                 candidate = text[start_arr:end_arr+1]
                 json.loads(candidate)
                 return candidate
-                
-            # Then try object
             start_obj, end_obj = text.find('{'), text.rfind('}')
             if start_obj != -1 and end_obj != -1 and end_obj > start_obj:
                 candidate = text[start_obj:end_obj+1]
@@ -433,96 +301,38 @@ class ExcelGenerator:
                 return candidate
         except:
             pass
-        
         return None
-    
-    def generate_with_llm(self, prompt: str, cache_key: Optional[str] = None, 
-                         max_tokens: int = 2500, json_schema: Optional[Dict] = None) -> str:
-        """
-        Robust wrapper around the project's LLM adapter(s).
-        Tries multiple adapter method names and caches responses.
-        """
+    def generate_with_llm(self, prompt = None, 
+                         max_tokens = 2500, json_schema: Optional[Dict] = None) -> str:
         if cache_key and cache_key in self.llm_cache:
             return self.llm_cache[cache_key]
-
         try:
-            # Try known adapter entrypoints in order of preference
             if hasattr(self.data_generator, 'generate_with_ollama'):
                 response = self.data_generator.generate_with_ollama(prompt, max_tokens=max_tokens, json_schema=json_schema)
             elif hasattr(self.data_generator, 'generate_with_llm'):
                 response = self.data_generator.generate_with_llm(prompt, max_tokens=max_tokens, json_schema=json_schema)
             elif hasattr(self.data_generator, 'generate'):
-                # Generic generate method (common adapter)
                 response = self.data_generator.generate(prompt, max_tokens=max_tokens)
             elif hasattr(self.data_generator, 'client') and hasattr(self.data_generator.client, 'generate'):
-                # Some wrappers expose a .client
                 response = self.data_generator.client.generate(prompt, max_tokens=max_tokens, json_schema=json_schema)
             else:
                 print(" No known LLM method on data_generator; returning empty response")
                 response = ""
-
             if cache_key:
                 self.llm_cache[cache_key] = response
             return response
         except Exception as e:
             print(f" LLM generation failed: {e}")
             return ""
-    
-    def generate_column_headers_with_llm(self, subject: str, num_columns: int) -> List[Dict]:
-        """
-        Generate column schema using LLM with structured prompting and validation.
-        
-        This method uses LLM to generate realistic column schemas for the given subject
-        domain. It implements a multi-tier approach with structured output validation
-        and comprehensive fallback mechanisms to ensure reliable schema generation.
-        
-        The method generates:
-        - Professional column names (max 3 words, no subject prefixes)
-        - Appropriate data types for the domain
-        - Realistic examples for categorical fields
-        - Descriptive metadata for each column
-        
-        Args:
-            subject (str): The subject/domain for which to generate column schema.
-                         Examples: "Product Catalogue", "Employee Information", etc.
-            num_columns (int): Exact number of columns to generate. Must be positive.
-        
-        Returns:
-            List[Dict]: List of column dictionaries, each containing:
-                - name (str): Column name
-                - type (str): Data type (text, number, date, money, etc.)
-                - examples (List[str]): Sample values for categorical fields
-                - description (str): Human-readable description
-        
-        Example:
-            >>> generator = ExcelGenerator(data_gen)
-            >>> schema = generator.generate_column_headers_with_llm("Product Catalogue", 5)
-            >>> print(schema[0])
-            {
-                'name': 'product_name',
-                'type': 'text',
-                'examples': ['Widget Pro', 'Gadget Max'],
-                'description': 'Name of the product'
-            }
-        
-        Note:
-            - Uses structured JSON output with schema validation
-            - Implements fallback to text parsing if structured output fails
-            - Caches results to improve performance
-            - Generates professional, domain-appropriate column names
-        """
-        # Define the prompt FIRST, before any try blocks
+    def generate_column_headers_with_llm(self, subject: str, num_columns: int) :
         prompt = f"""You are a database schema expert. Generate a realistic schema for "{subject}" with exactly {num_columns} columns.
-
 REQUIREMENTS:
 1. Column names must be SHORT and professional (max 3 words)
 2. DO NOT use the subject name as a prefix (bad: "employee_name", good: "name" or "full_name")
 3. Include diverse data types appropriate for the domain
 4. Provide 2-3 realistic examples for categorical fields
 5. Add a brief description for each column
-
 Available types: text, number, date, money, percentage, email, phone, id, category, boolean, url, address
-
 OUTPUT FORMAT (valid JSON only):
 {{
   "columns": [
@@ -534,13 +344,9 @@ OUTPUT FORMAT (valid JSON only):
     }}
   ]
 }}
-
 Generate {num_columns} columns now:"""
-
         try:
             print(f" LLM Prompt 1: Generating schema for '{subject}'...")
-            
-            # Try using native structured output if available
             response = None
             if hasattr(self.data_generator, 'client'):
                 try:
@@ -563,18 +369,13 @@ Generate {num_columns} columns now:"""
                         },
                         "required": ["columns"]
                     }
-                    # Use structured output
                     response = self.generate_with_llm(prompt, cache_key=f"schema_{subject}_{num_columns}", json_schema=json_schema)
                     print("   Using Ollama structured output")
                 except Exception as e:
                     print(f"   Structured output failed: {e}")
                     response = None
-            
-            # Fallback to regular generation
             if response is None:
                 response = self.generate_with_llm(prompt, cache_key=f"schema_{subject}_{num_columns}")
-            
-            # Extract and parse JSON
             cleaned_json = self.extract_json(response)
             if cleaned_json:
                 schema_data = json.loads(cleaned_json)
@@ -584,27 +385,15 @@ Generate {num_columns} columns now:"""
                         columns = self._pad_schema(columns, num_columns, subject)
                     print(f"   Generated {len(columns)} columns via LLM")
                     return columns
-            
             raise ValueError("Invalid JSON schema from LLM")
-            
         except Exception as e:
             print(f"   LLM schema generation failed: {e}")
             print("   Using enhanced template-based schema")
             return self.create_enhanced_fallback_schema(subject, num_columns)
-
-    
-    def generate_domain_constraints_with_llm(self, subject: str, schema: List[Dict]) -> Dict:
-        """
-        ENHANCED: LLM Prompt 2 - Generate domain-specific business constraints.
-        
-        This helps create realistic correlations and patterns.
-        """
+    def generate_domain_constraints_with_llm(self, subject: str, schema: List[Dict]) :
         column_summary = ", ".join([f"{col['name']} ({col['type']})" for col in schema[:8]])
-        
         prompt = f"""Analyze this "{subject}" dataset schema and identify realistic business constraints.
-
 Schema: {column_summary}
-
 Generate domain-specific constraints as JSON:
 {{
   "correlations": [
@@ -640,23 +429,18 @@ Generate domain-specific constraints as JSON:
   "required_fields": ["field1", "field2"],
   "unique_fields": ["field1"]
 }}
-
 Return JSON only:"""
-
         try:
             print(" LLM Prompt 2: Generating domain constraints...")
             response = self.generate_with_llm(prompt, cache_key=f"constraints_{subject}")
-            
             cleaned_json = self.extract_json(response)
             if cleaned_json:
                 constraints = json.loads(cleaned_json)
                 self.domain_constraints = constraints
                 print("   Domain constraints generated")
                 return constraints
-                
         except Exception as e:
             print(f"   Constraint generation failed: {e}")
-        
         return {
             'correlations': [],
             'value_ranges': [],
@@ -665,12 +449,8 @@ Return JSON only:"""
             'required_fields': [],
             'unique_fields': []
         }
-    
     def generate_sample_values_with_llm(self, column_name: str, column_type: str, 
-                                   subject: str, count: int = 15) -> List[str]:
-        """Generate domain-specific sample values with enhanced product support."""
-    
-        # Add product-specific context to prompt
+                                   subject = 15) -> List[str]:
         product_context = ""
         if 'product' in subject.lower() and any(kw in column_name.lower() for kw in ['name', 'model', 'sku', 'description']):
             product_context = """
@@ -679,105 +459,9 @@ SPECIAL INSTRUCTIONS FOR PRODUCT DATA:
 - Ensure names are unique and commercially viable
 - Match naming patterns for the product category
 - Include technical specifications where appropriate
-        """
-    
-        prompt = f"""Generate {count} realistic, diverse values for a column in a "{subject}" dataset.
-
-    Column: {column_name}
-    Type: {column_type}
-
-    {product_context}
-
-    REQUIREMENTS:
-    - Values must be appropriate for this specific business domain
-    - Ensure diversity (avoid repetition unless realistic)
-    - Use proper formatting for the data type
-    - Consider industry-specific terminology
-
-    Return as a JSON array: ["value1", "value2", ...]
-
-    Generate {count} values:"""
-
-        try:
-            response = self.generate_with_llm(
-                prompt, 
-                cache_key=f"values_{subject}_{column_name}_{count}",
-                max_tokens=600
-            )
-            
-            cleaned_json = self.extract_json(response)
-            if not cleaned_json:
-                # Try to find array directly
-                match = re.search(r'\[([^\]]+)\]', response)
-                if match:
-                    cleaned_json = '[' + match.group(1) + ']'
-            
-            if cleaned_json:
-                values = json.loads(cleaned_json)
-                if isinstance(values, list) and len(values) > 0:
-                    return [str(v) for v in values[:count]]
-                    
-        except Exception as e:
-            print(f"   Sample value generation failed for {column_name}")
-        
-        return []
-    
-    def validate_data_quality_with_llm(self, df: pd.DataFrame, subject: str) -> Dict:
-        """
         ENHANCED: LLM Prompt 4 - Validate generated data quality.
-        
         Final check to ensure data looks realistic.
-        """
-        # Create sample for LLM review
-        sample = df.head(3).to_dict('records')
-        sample_str = json.dumps(sample, indent=2, default=str)[:1500]  # Limit size
-        
-        prompt = f"""Review this sample from a "{subject}" synthetic dataset and identify quality issues.
-
-Sample data:
-{sample_str}
-
-Analyze for:
-1. Realism - Do values look authentic?
-2. Consistency - Are related fields aligned?
-3. Patterns - Any unrealistic patterns?
-4. Errors - Obvious mistakes?
-
-Return JSON:
-{{
-  "quality_score": 0.85,
-  "issues": ["issue 1", "issue 2"],
-  "suggestions": ["improvement 1", "improvement 2"],
-  "realistic": true
-}}"""
-
-        try:
-            print(" LLM Prompt 4: Validating data quality...")
-            response = self.generate_with_llm(prompt, max_tokens=800)
-            
-            cleaned_json = self.extract_json(response)
-            if cleaned_json:
-                validation = json.loads(cleaned_json)
-                # Type check: ensure LLM returned a dict, not a list
-                if isinstance(validation, dict):
-                    print(f"   Quality Score: {validation.get('quality_score', 'N/A')}")
-                    if validation.get('issues'):
-                        print(f"   Issues found: {len(validation['issues'])}")
-                    return validation
-                else:
-                    print(f"   Validation returned unexpected type: {type(validation).__name__}")
-                
-        except Exception as e:
-            print(f"   Validation failed: {e}")
-        
-        return {'quality_score': 0.0, 'issues': [], 'suggestions': [], 'realistic': False}
-    
-    # Continuing with rest of implementation...
-    
-    def create_enhanced_fallback_schema(self, subject: str, num_columns: int) -> List[Dict]:
-        """Enhanced fallback when LLM schema generation fails."""
         print(f" Creating fallback schema for '{subject}'")
-        
         base_schemas = {
             'employee': [
                 {"name": "EmployeeID", "type": "id", "examples": ["EMP-10234"], "description": "Unique employee identifier"},
@@ -879,12 +563,8 @@ Return JSON:
                 {"name": "Notes", "type": "text", "examples": ["", "Recurring monthly"], "description": "Additional notes"}
             ]
         }
-        
-        # Determine schema
         subject_lower = subject.lower()
         key = 'employee'
-        
-        # Priority check: Financial transactions BEFORE general transactions
         if 'financial' in subject_lower and 'transaction' in subject_lower:
             key = 'financial'
         elif any(s in subject_lower for s in ['customer', 'client', 'account']):
@@ -897,17 +577,11 @@ Return JSON:
             key = 'product'
         elif any(s in subject_lower for s in ['support', 'ticket', 'help', 'issue']):
             key = 'support'
-
-        
         schema = base_schemas[key].copy()
-        
         if len(schema) < num_columns:
             schema = self._pad_schema(schema, num_columns, subject)
-        
         return schema[:num_columns]
-    
-    def _pad_schema(self, schema: List[Dict], target: int, subject: str) -> List[Dict]:
-        """Pad schema to reach target column count."""
+    def _pad_schema(self, schema: List[Dict], target: int, subject: str) :
         generic = [
             {"name": "CreatedDate", "type": "date", "examples": ["2024-01-15"], "description": "Record created"},
             {"name": "LastModified", "type": "date", "examples": ["2025-08-10"], "description": "Last updated"},
@@ -918,133 +592,28 @@ Return JSON:
             {"name": "Tags", "type": "text", "examples": ["tag1,tag2"], "description": "Tags"},
             {"name": "Source", "type": "category", "examples": ["Web", "Mobile", "API"], "description": "Data source"}
         ]
-        
         while len(schema) < target and generic:
             schema.append(generic.pop(0))
-        
         return schema[:target]
-    
-    # ==================== STATISTICAL DISTRIBUTIONS ====================
-    
     def generate_lognormal_value(self, mean: float, stddev: float, 
                                  min_val: float, max_val: float) -> float:
-        """
-        Generate log-normal distributed value (ideal for salaries, prices).
-        
-        Log-normal distribution is perfect for modeling values that are always positive
-        and have a long tail, such as salaries, prices, and other financial metrics.
-        It provides more realistic data than normal distribution for these use cases.
-        
-        Args:
-            mean (float): Desired mean of the log-normal distribution.
-            stddev (float): Desired standard deviation of the log-normal distribution.
-            min_val (float): Minimum allowed value (clipping threshold).
-            max_val (float): Maximum allowed value (clipping threshold).
-        
-        Returns:
-            float: A log-normally distributed value within [min_val, max_val].
-        
-        Example:
-            >>> generator = ExcelGenerator(data_gen)
-            >>> salary = generator.generate_lognormal_value(
-            ...     mean=75000, stddev=25000, min_val=30000, max_val=200000
-            ... )
-            >>> print(f"Generated salary: ${salary:,.2f}")
-            Generated salary: $78,432.15
-        
-        Note:
-            - Falls back to uniform distribution if mean <= 0
-            - Values are clipped to the specified min/max range
-            - Uses numpy's lognormal implementation for accuracy
-        """
-        # Handle invalid mean values with fallback to uniform distribution
         if mean <= 0:
             return random.uniform(min_val, max_val)
-        
-        # Calculate log-normal parameters from desired mean and stddev
         mu = np.log(mean / np.sqrt(1 + (stddev/mean)**2))
         sigma = np.sqrt(np.log(1 + (stddev/mean)**2))
-        
-        # Generate log-normal value and clip to bounds
         value = np.random.lognormal(mu, sigma)
         return float(np.clip(value, min_val, max_val))
-    
     def generate_normal_value(self, mean: float, stddev: float, 
                              min_val: float, max_val: float) -> float:
-        """
-        Generate normally distributed value with clipping.
-        
-        Args:
-            mean (float): Mean of the normal distribution.
-            stddev (float): Standard deviation of the normal distribution.
-            min_val (float): Minimum allowed value.
-            max_val (float): Maximum allowed value.
-        
-        Returns:
-            float: Normally distributed value clipped to [min_val, max_val].
-        """
         value = np.random.normal(mean, stddev)
         return float(np.clip(value, min_val, max_val))
-    
-    def generate_power_law_value(self, alpha: float, min_val: int, max_val: int) -> int:
-        """
-        Generate power-law distributed value (for transaction amounts, views, etc.).
-        
-        Power-law distribution is ideal for modeling phenomena where a few values
-        are very large and most values are small, such as transaction amounts,
-        website views, or social media engagement.
-        
-        Args:
-            alpha (float): Power-law exponent (must be > 1). Higher values create
-                          more uniform distributions, lower values create more
-                          extreme long-tail distributions.
-            min_val (int): Minimum allowed value.
-            max_val (int): Maximum allowed value.
-        
-        Returns:
-            int: Power-law distributed integer value within [min_val, max_val].
-        
-        Example:
-            >>> generator = ExcelGenerator(data_gen)
-            >>> amount = generator.generate_power_law_value(2.5, 10, 10000)
-            >>> print(f"Transaction amount: ${amount}")
-            Transaction amount: $1,234
-        """
+    def generate_power_law_value(self, alpha: float, min_val: int, max_val: int) :
         u = np.random.uniform(0, 1)
         value = min_val * (1 - u) ** (-1 / (alpha - 1))
         return int(np.clip(value, min_val, max_val))
-    
-    def generate_seasonal_multiplier(self, date: datetime, pattern: str = 'Q4_peak') -> float:
-        """
-        Generate seasonal multiplier based on date for realistic temporal patterns.
-        
-        This method creates seasonal variations in data that reflect real-world
-        patterns, such as higher sales in Q4 (holiday season) or lower activity
-        in summer months.
-        
-        Args:
-            date (datetime): The date for which to calculate the seasonal multiplier.
-            pattern (str): Seasonal pattern type. Options:
-                - 'Q4_peak': Higher activity in Q4 (holiday season)
-                - 'summer_low': Lower activity in summer months
-                - 'spring_peak': Higher activity in spring
-                - 'uniform': No seasonal variation (multiplier = 1.0)
-        
-        Returns:
-            float: Seasonal multiplier (typically 0.5 to 2.0).
-        
-        Example:
-            >>> from datetime import datetime
-            >>> generator = ExcelGenerator(data_gen)
-            >>> multiplier = generator.generate_seasonal_multiplier(
-            ...     datetime(2024, 12, 15), 'Q4_peak'
-            ... )
-            >>> print(f"Q4 multiplier: {multiplier:.2f}")
-            Q4 multiplier: 1.40
-        """
+    def generate_seasonal_multiplier(self, date: datetime, pattern: str = 'Q4_peak') :
         month = date.month
         quarter = (month - 1) // 3 + 1
-        
         patterns = {
             'Q4_peak': {1: 0.85, 2: 0.9, 3: 0.95, 4: 1.0, 5: 1.0, 6: 1.05, 
                        7: 1.1, 8: 1.1, 9: 1.15, 10: 1.3, 11: 1.4, 12: 1.5},
@@ -1052,19 +621,13 @@ Return JSON:
                           7: 1.35, 8: 1.3, 9: 1.15, 10: 1.0, 11: 0.95, 12: 1.1},
             'uniform': {m: 1.0 for m in range(1, 13)}
         }
-        
         return patterns.get(pattern, patterns['uniform']).get(month, 1.0)
-    
-    # ==================== ATOMIC DATA GENERATORS ====================
-    
     def generate_date(self,
-                      start: Optional[datetime] = None,
-                      end: Optional[datetime] = None,
+                      start = None,
+                      end = None,
                       date_format: str = "%Y-%m-%d",
-                      prevent_future: Optional[bool] = None) -> str:
-        """Generate a date string respecting current run options."""
-
-        def _coerce_date(value: Any) -> Optional[datetime]:
+                      prevent_future = None) -> str:
+        def _coerce_date(value: Any) :
             if isinstance(value, datetime):
                 return value
             if isinstance(value, str):
@@ -1074,13 +637,10 @@ Return JSON:
                     except ValueError:
                         continue
             return None
-
         options = getattr(self, "_active_generation_options", {}) or {}
         prevent_future = options.get('prevent_future', True) if prevent_future is None else prevent_future
-
         start = start or _coerce_date(options.get('date_min'))
         end = end or _coerce_date(options.get('date_max'))
-
         now = datetime.now()
         if prevent_future:
             if end is None or end > now:
@@ -1088,25 +648,19 @@ Return JSON:
         elif end is None:
             future_days = int(options.get('future_days', 365))
             end = now + timedelta(days=future_days)
-
         if start is None:
             window_years = float(options.get('date_window_years', 5))
             window_days = max(30, int(window_years * 365))
             start = (end or now) - timedelta(days=window_days)
-
         if end is None:
             end = start + timedelta(days=365)
-
         if start > end:
             start, end = end, start
-
         delta_days = max((end - start).days, 0)
         random_days = random.randint(0, delta_days) if delta_days > 0 else 0
         generated = start + timedelta(days=random_days)
         return generated.strftime(date_format)
-
-    def generate_person_name(self, country: Optional[str] = None) -> str:
-        """Generate realistic person name based on country."""
+    def generate_person_name(self, country = None) :
         region_map = {
             'USA': 'Anglo', 'UK': 'Anglo', 'Canada': 'Anglo', 'Australia': 'Anglo',
             'Mexico': 'Hispanic', 'Spain': 'Hispanic',
@@ -1114,16 +668,11 @@ Return JSON:
             'India': 'South Asian',
             'Germany': 'European', 'France': 'European', 'Italy': 'European'
         }
-        
         region = region_map.get(country, 'Anglo')
         name_set = self._INTERNATIONAL_NAMES.get(region, self._INTERNATIONAL_NAMES['Anglo'])
-        
         return f"{random.choice(name_set['first'])} {random.choice(name_set['last'])}"
-    
-    def generate_company_name(self, subject: Optional[str] = None) -> str:
-        """Generate realistic company name."""
+    def generate_company_name(self, subject = None) :
         industry = 'generic'
-        
         if subject:
             sl = subject.lower()
             if any(s in sl for s in ['tech', 'software', 'it', 'digital']):
@@ -1134,11 +683,9 @@ Return JSON:
                 industry = 'manufacturing'
             elif any(s in sl for s in ['health', 'medical', 'hospital']):
                 industry = 'healthcare'
-        
         keywords = self._INDUSTRY_KEYWORDS[industry]
         bases = ['Apex', 'Summit', 'Pinnacle', 'Starlight', 'Meridian', 'Global', 
                 'Quantum', 'Premier', 'United', 'Pacific']
-        
         style = random.random()
         if style < 0.4:
             return f"{random.choice(bases)} {random.choice(keywords)}"
@@ -1147,9 +694,7 @@ Return JSON:
             return f"{last} {random.choice(keywords)}"
         else:
             return f"{random.choice(bases)} {random.choice(self._INTERNATIONAL_NAMES['Anglo']['last'])} Inc."
-    
-    def generate_job_title(self, dept: str) -> str:
-        """Generate job title by department with realistic hierarchies."""
+    def generate_job_title(self, dept: str) :
         titles = {
             "IT": [
                 "Software Engineer", "Senior Software Engineer", "Lead Software Engineer",
@@ -1182,14 +727,9 @@ Return JSON:
                 "Regional Sales Manager", "Sales Engineer", "Inside Sales Representative"
             ]
         }
-        
         return random.choice(titles.get(dept, ["Specialist", "Coordinator", "Manager", "Analyst"]))
-    
-    def generate_phone(self, country: str = "USA") -> str:
-        """Generate realistic phone by country with consistent country code formatting."""
-        # Normalize country name to match LOCATIONS keys
+    def generate_phone(self, country: str = "USA") :
         country_normalized = country.upper() if country.upper() in ['USA', 'UK'] else country
-        
         formats = {
             "US": lambda: f"+1 ({random.randint(200,999)}) {random.randint(200,999)}-{random.randint(1000,9999)}",
             "CA": lambda: f"+1 ({random.randint(200,999)}) {random.randint(200,999)}-{random.randint(1000,9999)}",
@@ -1203,128 +743,87 @@ Return JSON:
         }
         fmt = self._LOCATIONS.get(country_normalized, {}).get("phone_format", "US")
         return formats.get(fmt, formats["US"])()
-    
     def generate_salary(self, job_title: str, country: str = "USA", 
-                       department: Optional[str] = None, years_experience: Optional[int] = None) -> float:
-        """
-        Generate realistic salary with log-normal distribution and correlations (Requirement #6).
-        Adds variation based on job title, department, and experience.
-        """
+                       department = None, years_experience: Optional[int] = None) -> float:
         base_ranges = {
             "USA": (35000, 150000), "UK": (28000, 120000),
             "Germany": (32000, 130000), "Canada": (33000, 125000),
             "Australia": (40000, 140000), "Japan": (30000, 110000),
             "India": (8000, 50000), "China": (12000, 60000), "France": (30000, 125000)
         }
-        
         low, high = base_ranges.get(country, (30000, 120000))
         mult = self._LOCATIONS.get(country, {}).get('salary_multiplier', 1.0)
         low, high = int(low * mult), int(high * mult)
-        
-        # Hierarchy multiplier (more granular for realism)
         h_mult = 1.0
         if any(t in job_title for t in ["CEO", "CFO", "CTO", "COO", "Chief"]):
-            h_mult = random.uniform(2.3, 2.8)  # C-level variation
+            h_mult = random.uniform(2.3, 2.8)
         elif any(t in job_title for t in ["VP", "Vice President"]):
-            h_mult = random.uniform(1.8, 2.2)  # VP variation
+            h_mult = random.uniform(1.8, 2.2)
         elif any(t in job_title for t in ["Director", "Senior Director"]):
-            h_mult = random.uniform(1.5, 1.8)  # Director variation
+            h_mult = random.uniform(1.5, 1.8)
         elif any(t in job_title for t in ["Manager", "Lead"]):
-            h_mult = random.uniform(1.2, 1.5)  # Manager variation
+            h_mult = random.uniform(1.2, 1.5)
         elif "Senior" in job_title:
-            h_mult = random.uniform(1.15, 1.35)  # Senior variation
+            h_mult = random.uniform(1.15, 1.35)
         elif any(t in job_title for t in ["Junior", "Associate", "Assistant"]):
-            h_mult = random.uniform(0.7, 0.9)  # Junior variation
+            h_mult = random.uniform(0.7, 0.9)
         elif any(t in job_title for t in ["Intern", "Trainee"]):
-            h_mult = random.uniform(0.5, 0.7)  # Entry-level variation
-        
-        # Department multiplier (more realistic ranges)
+            h_mult = random.uniform(0.5, 0.7)
         d_mult = 1.0
         if department in ["IT", "Engineering"]:
             d_mult = random.uniform(1.12, 1.18)
         elif department in ["Finance", "Legal"]:
             d_mult = random.uniform(1.08, 1.14)
         elif department in ["Sales"]:
-            d_mult = random.uniform(1.05, 1.12)  # Sales can vary with commission
+            d_mult = random.uniform(1.05, 1.12)
         elif department in ["Marketing"]:
             d_mult = random.uniform(1.02, 1.08)
         elif department in ["HR", "Operations"]:
             d_mult = random.uniform(0.98, 1.05)
-        
-        # Experience multiplier (Requirement #6 - realistic variation)
         exp_mult = 1.0
         if years_experience is not None:
-            # 2-4% increase per year of experience, diminishing returns after 10 years
             if years_experience <= 10:
                 exp_mult = 1.0 + (years_experience * random.uniform(0.02, 0.04))
             else:
                 exp_mult = 1.0 + (10 * 0.03) + ((years_experience - 10) * random.uniform(0.01, 0.02))
-        
         mean = (low + high * h_mult * d_mult * exp_mult) / 2
         stddev = (high - low) / 4
-        
         salary = self.generate_lognormal_value(mean, stddev, low, high * h_mult * exp_mult)
         return round(salary / 100) * 100
-    
     def generate_email(self, first_name: str, last_name: str, 
-                      company: Optional[str] = None) -> str:
-        """Generate realistic email."""
+                      company = None) -> str:
         first = re.sub(r'[^a-zA-Z]', '', first_name.lower())
         last = re.sub(r'[^a-zA-Z]', '', last_name.lower())
-        
         domain = company or random.choice(self._DOMAINS)
         if company and ' ' in company:
             domain = company.split()[0].lower() + '.com'
-        
         formats = [
             f"{first}.{last}@{domain}",
             f"{first}{last}@{domain}",
             f"{first[0]}{last}@{domain}",
             f"{first}.{last}{random.randint(1,99)}@{domain}"
         ]
-        
         return random.choice(formats)
-    
     def generate_id_with_encoding(self, prefix: str, row_idx: int, 
                                   encode_date: bool = False,
-                                  location: Optional[str] = None) -> str:
-        """Generate ID with CONSISTENT formatting - enterprise standard."""
-        # FIXED: Use single consistent format across entire dataset
-        # Format: PREFIX-NNNNNN (e.g., EMP-001234)
-        # This matches real enterprise systems that enforce one format
-        
-        # Generate sequential ID with padding
-        # Add prefix-based offset to ensure different ID columns have different sequences
-        prefix_offset = sum(ord(c) for c in prefix[:3]) * 1000  # Unique offset per prefix
-        seq = 100000 + prefix_offset + row_idx  # Start from 100000 + offset for realistic IDs
-        
-        # Always use hyphen separator for consistency
+                                  location = None) -> str:
+        prefix_offset = sum(ord(c) for c in prefix[:3]) * 1000
+        seq = 100000 + prefix_offset + row_idx
         return f"{prefix}-{seq:06d}"
-    
-    # === HELPER METHODS (lightweight implementations to resolve remaining problems) ===
-    def generate_id_with_encoding(self, prefix: str, index: int) -> str:
-        """Simple ID generator used by several flows."""
+    def generate_id_with_encoding(self, prefix: str, index: int) :
         idx = int(index) if isinstance(index, (int, float)) else 0
         return f"{prefix}-{idx:05d}"
-
-    def _strip_whitespace_from_text(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Trim whitespace on all string columns."""
+    def _strip_whitespace_from_text(self, df: pd.DataFrame) :
         for c in df.columns:
             if df[c].dtype == object:
                 df[c] = df[c].apply(lambda v: v.strip() if isinstance(v, str) else v)
         return df
-
-    def _apply_category_standardization(self, df: pd.DataFrame, rules: List[Any]) -> pd.DataFrame:
-        """No-op category standardization placeholder (keeps data stable)."""
-        # rules currently unused; kept for API compatibility
+    def _apply_category_standardization(self, df: pd.DataFrame, rules: List[Any]) :
         return df
-
-    def _validate_all_dates_in_past(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Ensure date-like columns are formatted and not in the future."""
+    def _validate_all_dates_in_past(self, df: pd.DataFrame) :
         for c in df.columns:
             if 'date' in c.lower() or (df[c].dtype == object and all(isinstance(v, str) for v in df[c].dropna().head(5))):
                 try:
-                    # Try common explicit formats first to avoid pandas inference warnings
                     formats_to_try = [
                         '%Y-%m-%d', '%Y/%m/%d', '%d-%m-%Y', '%m/%d/%Y',
                         '%Y-%m-%d %H:%M:%S', '%Y/%m/%d %H:%M:%S'
@@ -1338,24 +837,17 @@ Return JSON:
                         if candidate.notna().any():
                             parsed = candidate
                             break
-
                     if parsed is None:
-                        # Fallback parsing: suppress the pandas UserWarning about format inference
                         import warnings
                         with warnings.catch_warnings():
                             warnings.simplefilter("ignore")
                             parsed = pd.to_datetime(df[c], errors='coerce')
-
                     if parsed is not None and parsed.notna().any():
                         df[c] = parsed.dt.strftime('%Y-%m-%d')
                 except Exception:
-                    # If anything goes wrong, leave the column unchanged
                     pass
         return df
-
-    def _apply_final_production_fixes(self, df: pd.DataFrame, subject: str) -> pd.DataFrame:
-        """Apply lightweight final fixes (dedupe small noise, ensure columns unique)."""
-        # Ensure unique column names
+    def _apply_final_production_fixes(self, df: pd.DataFrame, subject: str) :
         cols = []
         seen = {}
         for col in df.columns:
@@ -1368,18 +860,12 @@ Return JSON:
             cols.append(col)
         df.columns = cols
         return df
-
-    def fix_employee_data_quality(self, df: pd.DataFrame, subject: str) -> pd.DataFrame:
-        """Small fixes specific to employee-like datasets: ensure Email exists if FirstName/LastName present."""
+    def fix_employee_data_quality(self, df: pd.DataFrame, subject: str) :
         if 'Email' in df.columns:
             return df
         if 'FirstName' in df.columns and 'LastName' in df.columns:
             df['Email'] = df.apply(lambda r: self.generate_email(r['FirstName'], r['LastName']), axis=1)
-    def _generate_customer_profiles_with_llm(self, count: int) -> List[Dict]:
-        """
-        Generate diverse B2B customer profiles using LLM, with deterministic fallback.
-        Returns list of dicts with 'name', 'industry', 'region_hint'.
-        """
+    def _generate_customer_profiles_with_llm(self, count: int) :
         print(f" LLM Prompt: Generating {count} customer profiles...")
         try:
             prompt = f"""Generate {count} unique and realistic B2B customer company names.
@@ -1388,94 +874,21 @@ Return JSON:
             - "name": The company name (creative, not just generic words)
             - "industry": The industry sector
             - "region_hint": A hint for location (e.g., "North America", "Europe", "Asia")
-            
             Ensure names are diverse and sound like real businesses.
-            """
-            response = self.generate_with_llm(prompt, cache_key=f"b2b_customers_{count}", max_tokens=4000)
-            print(f" Raw LLM Response (Customers): {response[:500]}...") # Debug print
-            with open("llm_debug_log.txt", "a", encoding="utf-8") as f:
-                f.write(f"\n--- CUSTOMERS ({count}) ---\n{response}\n")
-            
-            data = self.extract_json(response)
-            if data and 'companies' in data and isinstance(data['companies'], list):
-                print(f" LLM generated {len(data['companies'])} customer profiles")
-                return data['companies'][:count]
-        except Exception as e:
-            print(f" LLM Customer generation failed: {e}")
-            
-        print("🔧 Using deterministic fallback for customers")
-        # Fallback: Enhanced Company Name Generation (Deterministic)
-        COMPANY_PREFIXES = [
-            'Global', 'United', 'Pacific', 'Atlantic', 'Summit', 'Quantum',
-            'Apex', 'Prime', 'Elite', 'Strategic', 'Advanced', 'Dynamic',
-            'Innovative', 'NextGen', 'Digital', 'Smart', 'Optimal', 'First',
-            'Central', 'Northern', 'Southern', 'Eastern', 'Western'
-        ]
-        COMPANY_SUFFIXES = [
-            'Systems', 'Solutions', 'Services', 'Inc.', 'Corp', 'Group',
-            'Technologies', 'Enterprises', 'International', 'Consulting',
-            'Partners', 'Associates', 'Industries', 'Holdings', 'Ventures',
-            'Labs', 'Co.', 'LLC', 'Ltd.', 'Logistics', 'Dynamics'
-        ]
-        COMPANY_DESCRIPTORS = [
-            'Technology', 'Business', 'Financial', 'Medical', 'Industrial',
-            'Retail', 'Manufacturing', 'Software', 'Hardware', 'Cloud',
-            'Data', 'Security', 'Network', 'Analytics', 'Energy', 'Media'
-        ]
-        
-        profiles = []
-        for _ in range(count):
-            # Pattern 1: Prefix + Suffix (40%)
-            if random.random() < 0.4:
-                name = f"{random.choice(COMPANY_PREFIXES)} {random.choice(COMPANY_SUFFIXES)}"
-            # Pattern 2: Descriptor + Suffix (30%)
-            elif random.random() < 0.7:
-                name = f"{random.choice(COMPANY_DESCRIPTORS)} {random.choice(COMPANY_SUFFIXES)}"
-            # Pattern 3: LastName + Suffix (20%)
-            elif random.random() < 0.9:
-                last_name = random.choice(self._LAST_NAMES if hasattr(self, '_LAST_NAMES') else ['Smith', 'Johnson', 'Williams', 'Brown', 'Jones'])
-                name = f"{last_name} {random.choice(COMPANY_SUFFIXES)}"
-            # Pattern 4: Prefix + Descriptor + Suffix (10%)
-            else:
-                name = f"{random.choice(COMPANY_PREFIXES)} {random.choice(COMPANY_DESCRIPTORS)} {random.choice(COMPANY_SUFFIXES)}"
-            
-            profiles.append({'name': name, 'industry': 'General', 'region_hint': 'Global'})
-            
-        return profiles
-
-    def _generate_product_pool_with_llm(self, count: int) -> List[Dict]:
-        """
         Generate diverse product catalog using LLM, with deterministic fallback.
         Returns list of dicts with 'name', 'category', 'price'.
-        """
-        print(f" LLM Prompt: Generating {count} products...")
-        try:
-            prompt = f"""Generate {count} realistic products for a general B2B/B2C supplier.
-            Include a mix of categories: Electronics, Apparel, Home Goods, Outdoor Gear, Automotive.
-            Return a JSON object with a key "products" containing a list of objects, each with:
-            - "name": The product name (creative, specific)
-            - "category": One of the categories above
-            - "price": A realistic unit price (float, between 10 and 3000)
-            
-            Ensure prices match the product type (e.g., laptops are expensive, t-shirts are cheap).
-            """
             response = self.generate_with_llm(prompt, cache_key=f"product_pool_{count}", max_tokens=4000)
-            print(f"🔍 Raw LLM Response (Products): {response[:500]}...") # Debug print
             with open("llm_debug_log.txt", "a", encoding="utf-8") as f:
                 f.write(f"\n--- PRODUCTS ({count}) ---\n{response}\n")
-
             data = self.extract_json(response)
             if data and 'products' in data and isinstance(data['products'], list):
-                print(f" LLM generated {len(data['products'])} products")
+                print(f"LLM generated {len(data['products'])} products")
                 return data['products'][:count]
         except Exception as e:
             print(f" LLM Product generation failed: {e}")
-            
         print(" Using deterministic fallback for products")
-        # Fallback: Hardcoded items
         fallback_products = []
         categories = ['Electronics', 'Apparel', 'Home Goods', 'Outdoor Gear', 'Automotive']
-        
         for _ in range(count):
             category = random.choice(categories)
             if category == 'Electronics':
@@ -1488,54 +901,34 @@ Return JSON:
                 items = [('Summit', 'Backpack', 149.99, 349.99), ('Trail', 'Tent', 199.99, 499.99), ('Blaze', 'Headlamp', 49.99, 99.99)]
             else:
                 items = [('Synthetic', 'Motor Oil', 35.00, 65.00), ('Hydro', 'Wiper Blade', 15.00, 30.00), ('Premium', 'Air Filter', 19.99, 59.99)]
-            
             item = random.choice(items)
             name = f"{item[0]} {item[1]}"
             price = round(random.uniform(item[2], item[3]), 2)
             fallback_products.append({'name': name, 'category': category, 'price': price})
-            
         return fallback_products
-
-    def generate_sales_transactions_with_entities(self, rows: int, columns: int, subject: str) -> pd.DataFrame:
+    def generate_sales_transactions_with_entities(self, rows: int, columns: int, subject: str) :
         print("=" * 80)
         print("GENERATING FINANCIAL TRANSACTIONS WITH ENTITY-BASED APPROACH")
         print("=" * 80)
-        
-        # CRITICAL: Define date boundaries (2020-01-01 to 2025-11-12, TODAY)
         date_min = datetime(2020, 1, 1)
         date_max = datetime(2025, 11, 12)
         days_range = (date_max - date_min).days
-
-        # STEP 1: Create customer entities (30-40 customers for 100+ orders)
         num_customers = random.randint(30, 40)
         print(f"Creating {num_customers} customers...")
-        
         customers = []
-        
-        # Enhanced Company Name Generation (LLM-Driven)
         customer_profiles = self._generate_customer_profiles_with_llm(num_customers)
-        
-        # Ensure we have enough profiles (handle partial LLM returns)
         if len(customer_profiles) < num_customers:
-             # Fill remaining with fallback logic if needed (simple duplication or regen)
-             # For simplicity, just cycle through what we have
              while len(customer_profiles) < num_customers:
                  customer_profiles.append(random.choice(customer_profiles))
-
         for i in range(num_customers):
             profile = customer_profiles[i]
             company_name = profile.get('name', f"Customer {i}")
-            
-            # Generate realistic location
             country = random.choice(list(self._LOCATIONS.keys()))
             city = random.choice(self._LOCATIONS[country]['cities'])
-            
-            # CreatedDate: Random between 2020-01-01 and (2025-11-12 - 90 days)
             max_creation_date = date_max - timedelta(days=90)
             creation_days_available = (max_creation_date - date_min).days
             created_days_offset = random.randint(0, creation_days_available)
             created_date = date_min + timedelta(days=created_days_offset)
-
             customers.append({
                 'CustomerID': f"CUST-{1000+i}",
                 'CustomerName': company_name,
@@ -1544,211 +937,120 @@ Return JSON:
                 'Region': random.choice(self._LOCATIONS[country]['states']),
                 'CreatedDate': created_date
             })
-            
-        # STEP 2: Create sales rep pool (8-12 reps)
         num_reps = random.randint(8, 12)
         print(f"Creating {num_reps} sales representatives...")
-        
         sales_reps = [self.generate_person_name() for _ in range(num_reps)]
-        
-        # Assign each customer to a PRIMARY sales rep (sticky assignment for account management)
         for customer in customers:
             customer['PrimarySalesRep'] = random.choice(sales_reps)
-
-        # STEP 3: Create product pool (50-80 products with popularity weights)
         num_products = random.randint(50, 80)
         print(f"Creating {num_products} products...")
-
-        # Enhanced Product Generation (LLM-Driven)
         product_pool = self._generate_product_pool_with_llm(num_products)
-        
-        # Ensure we have enough products
         if len(product_pool) < num_products:
              while len(product_pool) < num_products:
                  product_pool.append(random.choice(product_pool))
-
         products = []
         for i in range(num_products):
             item = product_pool[i]
-            
             products.append({
                 'ProductSKU': f"PRO-{341000 + i}",
                 'ProductName': item.get('name', f"Product {i}"),
                 'Category': item.get('category', 'General'),
                 'UnitPrice': float(item.get('price', 99.99))
             })
-
-        # NOW create popularity weights AFTER products are built
-        # Implement constrained distribution: Top product ~10%, Top 5 products ~35%, Remaining ~55%
-        
-        # Only enforce strict distribution checks for larger datasets
         if rows >= 50:
-            # ... existing logic ...
-            pass # Placeholder to keep indentation if needed, but we'll just wrap the assertions
-
-        
+            pass
         num_products = len(products)
         popularity_weights = np.zeros(num_products)
-        
-        # Tier 1: Top 1 product gets 10%
         popularity_weights[0] = 0.10
-        
-        # Tier 2: Next 4 products get 6.25% each (total 25% for next 4, top 5 = 35%)
         if num_products >= 5:
             tier2_per_product = 0.25 / 4
             for i in range(1, 5):
                 popularity_weights[i] = tier2_per_product
-        
-        # Tier 3: Remaining products share 55% equally
         remaining_products = num_products - 5
         if remaining_products > 0:
             tier3_per_product = 0.55 / remaining_products
             for i in range(5, num_products):
                 popularity_weights[i] = tier3_per_product
         else:
-            # If <= 5 products, distribute remaining equally among all
             total_assigned = 0.35 if num_products >= 5 else (0.10 + (num_products - 1) * 0.25 / 4)
             remaining = 1.0 - total_assigned
             for i in range(num_products):
                 popularity_weights[i] += remaining / num_products
-        
-        # Normalize to ensure exact sum to 1.0
         popularity_weights = popularity_weights / popularity_weights.sum()
-
         print(f"Created {len(products)} products with constrained popularity distribution")
-        print(f"  Top product: {popularity_weights[0]:.1%}")
+        print(f"Top product: {popularity_weights[0]:.1%}")
         if num_products >= 5:
-            print(f"  Next 4 products: {popularity_weights[1]:.1%} each")
+            print(f"Next 4 products: {popularity_weights[1]:.1%} each")
         if num_products > 5:
-            print(f"  Remaining {num_products-5} products: {popularity_weights[5]:.1%} each")
-        print(f"  Top 5 total: {np.sum(popularity_weights[:min(5, num_products)]):.1%}")
-
-
-
-
-
-        
-        # STEP 4: Generate orders with REALISTIC customer distribution
+            print(f"Remaining {num_products-5} products: {popularity_weights[5]:.1%} each")
+        print(f"Top 5 total: {np.sum(popularity_weights[:min(5, num_products)]):.1%}")
         print(f"Generating {rows} orders...")
-        
-        # Create customer weights using Pareto distribution
-        # Top customer: 8-12%, Top 5: 30-40%, Remaining: 60-70%
         customer_weights = np.random.pareto(1.5, num_customers) + 1
         customer_weights = customer_weights / customer_weights.sum()
-        
-        # Normalize to ensure top customer is 8-12% max
         max_weight_idx = np.argmax(customer_weights)
         if customer_weights[max_weight_idx] > 0.12:
-            # Scale down top customer
             excess = customer_weights[max_weight_idx] - 0.12
             customer_weights[max_weight_idx] = 0.12
-            # Redistribute excess
             other_indices = [i for i in range(num_customers) if i != max_weight_idx]
             for idx in other_indices:
                 customer_weights[idx] += excess / len(other_indices)
-        
         orders = []
-        
-        # Generate unique random Order IDs
-        # Range 400,000 to 500,000 (100k range) for realistic gaps
         order_ids = set()
         while len(order_ids) < rows:
             order_ids.add(f"ORD-{random.randint(400000, 500000)}")
         order_id_list = list(order_ids)
-        
         for i in range(rows):
-            # Select customer (weighted distribution)
             customer_idx = np.random.choice(range(num_customers), p=customer_weights)
             customer = customers[customer_idx]
-            
-            # Select product (weighted by popularity)
             product_idx = np.random.choice(len(products), p=popularity_weights)
             product = products[product_idx]
-
-            # CRITICAL: Fix temporal logic AND date validation
-            # CreatedDate is BEFORE OrderDate (1-90 days before)
             created_date = customer['CreatedDate']
-            
-            # OrderDate: 1-90 days AFTER CreatedDate, guaranteed to stay within bounds
-            # Since created_date is guaranteed to be before (date_max - 90 days), 
-            # adding up to 90 days will never exceed date_max
             days_after_created = random.randint(1, 90)
             order_date = created_date + timedelta(days=days_after_created)
-            
-            # DEFENSIVE CHECK: Ensure order_date never exceeds 2025-11-12
             if order_date > date_max:
                 order_date = date_max - timedelta(days=random.randint(1, 30))
-
-            # Determine quantity based on UNIT PRICE (refined business logic)
             unit_price = product['UnitPrice']
-            
-            # Refined pricing tiers for more realism
             if unit_price > 1000:
-                # Premium items ($1000+): typically 1-2 units, rare bulk (5% of time 3-5)
                 if random.random() < 0.05:
-                    quantity = random.randint(3, 5)  # B2B bulk order (rare)
+                    quantity = random.randint(3, 5)
                 else:
-                    quantity = random.randint(1, 2)  # Normal single/pair order
+                    quantity = random.randint(1, 2)
             elif unit_price > 500:
-                # Expensive items ($500+): 1-3 units, occasional bulk (5% of time 4-5)
                 if random.random() < 0.05:
-                    quantity = random.randint(4, 5)  # B2B bulk order (rare)
+                    quantity = random.randint(4, 5)
                 else:
-                    quantity = random.randint(1, 3)  # Normal order
+                    quantity = random.randint(1, 3)
             elif unit_price >= 200:
-                # High-value items ($200-$500): 1-5 units normally
                 quantity = random.randint(1, 5)
             elif unit_price >= 100:
-                # Medium items ($100-$500): 1-10 units
                 quantity = random.randint(1, 10)
             else:
-                # Low-cost items (<$100): 1-20 units
                 quantity = random.randint(1, 20)
-
-            
-            # Calculate total (always correct)
             total_sale = round(quantity * product['UnitPrice'], 2)
-            
-            # Generate OrderID with random gaps (more realistic)
             order_id = order_id_list[i]
-            
-            # Determine status with realistic business logic
-            # Use order age from a reference point (2025-11-12 is "today")
             days_ago = (date_max - order_date).days
-            
             if days_ago < 14:
-                # Recent orders: mostly Pending
                 status = random.choices(
                     ['Pending', 'Completed', 'Pending'],
                     weights=[0.6, 0.3, 0.1],
                     k=1
                 )[0]
             elif days_ago < 60:
-                # Medium-age: mostly Completed or Pending
                 status = random.choices(
                     ['Completed', 'Pending', 'Cancelled'],
                     weights=[0.75, 0.10, 0.15],
                     k=1
                 )[0]
             else:
-                # Old orders: Completed, Cancelled, or Refunded
                 status = random.choices(
                     ['Completed', 'Cancelled', 'Refunded'],
                     weights=[0.75, 0.10, 0.15],
                     k=1
                 )[0]
-            
-            # Sales rep assignment: 80-90% primary, 10-20% other reps (account management model)
             if random.random() < 0.85:
-                # 85% of the time, use primary sales rep
                 sales_rep = customer['PrimarySalesRep']
             else:
-                # 15% of the time, assign different rep (coverage, specialization)
                 sales_rep = random.choice([r for r in sales_reps if r != customer['PrimarySalesRep']])
-            
-            # Ensure SalesRep is NEVER None (ISSUE #5)
-            # All orders have a sales rep (no 2% web orders with None)
-            
             order = {
                 'OrderID': order_id,
                 'OrderDate': order_date.strftime('%Y-%m-%d'),
@@ -1760,58 +1062,40 @@ Return JSON:
                 'Quantity': quantity,
                 'UnitPrice': product['UnitPrice'],
                 'TotalSale': total_sale,
-                'SalesRep': sales_rep,  # NEVER None
+                'SalesRep': sales_rep,
                 'Region': customer['Region'],
                 'Status': status,
                 'CreatedDate': created_date.strftime('%Y-%m-%d')
             }
-            
             orders.append(order)
-        
-        # Create DataFrame
         df = pd.DataFrame(orders)
-        
-        # Validation
         print("\n" + "=" * 80)
         print("VALIDATION RESULTS:")
         print("=" * 80)
-        
         try:
             assert df['OrderID'].notna().all(), "OrderID has null values!"
             assert df['OrderID'].is_unique, "OrderID has duplicates!"
-            print(f" OrderID: All {len(df)} values present and unique")
-            
-            # CRITICAL: Date validation
+            print(f"OrderID: {len(df)} unique values")
             df['OrderDate_dt'] = pd.to_datetime(df['OrderDate'])
             df['CreatedDate_dt'] = pd.to_datetime(df['CreatedDate'])
-            
-            # Check all dates are within bounds (2020-01-01 to 2025-11-12)
             assert df['OrderDate_dt'].min() >= datetime(2020, 1, 1), "OrderDate has dates before 2020-01-01!"
-            assert df['OrderDate_dt'].max() <= datetime(2025, 11, 12), "OrderDate has dates after 2025-11-12!"
+            assert df['OrderDate_dt'].max() <= datetime(2025, 11, 12), "OrderDate max violated!"
             assert df['CreatedDate_dt'].min() >= datetime(2020, 1, 1), "CreatedDate has dates before 2020-01-01!"
-            assert df['CreatedDate_dt'].max() <= datetime(2025, 11, 12), "CreatedDate has dates after 2025-11-12!"
-            print(f" Date bounds: All OrderDates {df['OrderDate_dt'].min().strftime('%Y-%m-%d')} to {df['OrderDate_dt'].max().strftime('%Y-%m-%d')}")
-            print(f"   All CreatedDates {df['CreatedDate_dt'].min().strftime('%Y-%m-%d')} to {df['CreatedDate_dt'].max().strftime('%Y-%m-%d')}")
-            
-            # CRITICAL: Temporal logic (CreatedDate BEFORE OrderDate)
+            assert df['CreatedDate_dt'].max() <= datetime(2025, 11, 12), "CreatedDate max violated!"
+            print(f"Date ranges: Orders {df['OrderDate_dt'].min().strftime('%Y-%m-%d')} to {df['OrderDate_dt'].max().strftime('%Y-%m-%d')}")
+            print(f"  Created {df['CreatedDate_dt'].min().strftime('%Y-%m-%d')} to {df['CreatedDate_dt'].max().strftime('%Y-%m-%d')}")
             assert (df['CreatedDate_dt'] <= df['OrderDate_dt']).all(), "CreatedDate after OrderDate (temporal violation)!"
             time_gaps = (df['OrderDate_dt'] - df['CreatedDate_dt']).dt.days
             print(f" Temporal logic: CreatedDate <= OrderDate (gap: 1-90 days mean={time_gaps.mean():.1f})")
-            
-            # CRITICAL: SalesRep completeness
             assert df['SalesRep'].notna().all(), f"SalesRep has {df['SalesRep'].isna().sum()} null values!"
             print(f" SalesRep: All {len(df)} records have sales representative assigned")
-            
-            # Customer distribution
             customer_dist = df['CustomerID'].value_counts()
             top_customer_pct = customer_dist.iloc[0] / len(df)
             top_5_pct = customer_dist.head(5).sum() / len(df)
             print(f" Customer distribution:")
-            print(f"   Top customer: {top_customer_pct:.1%} ({customer_dist.iloc[0]} orders)")
-            print(f"   Top 5 customers: {top_5_pct:.1%} ({customer_dist.head(5).sum()} orders)")
-            print(f"   Unique customers: {df['CustomerID'].nunique()}")
-            
-            # Status validation (only valid transaction statuses)
+            print(f"Top customer: {top_customer_pct:.1%} ({customer_dist.iloc[0]} orders)")
+            print(f"Top 5 customers: {top_5_pct:.1%} ({customer_dist.head(5).sum()} orders)")
+            print(f"Unique customers: {df['CustomerID'].nunique()}")
             valid_statuses = {'Completed', 'Pending', 'Cancelled', 'Refunded'}
             invalid_statuses = set(df['Status'].unique()) - valid_statuses
             assert len(invalid_statuses) == 0, f"Invalid statuses found: {invalid_statuses}"
@@ -1819,134 +1103,80 @@ Return JSON:
             print(f" Status distribution (valid only):")
             for status, count in status_dist.items():
                 print(f"   {status}: {count/len(df):.1%} ({count} orders)")
-            
-            # Quantity constraints by price
             expensive = df[df['UnitPrice'] > 500]
             if len(expensive) > 0:
-                assert expensive['Quantity'].max() <= 5, f"Expensive (>$500) items exceed 5-unit limit! Max: {expensive['Quantity'].max()}"
+                assert expensive['Quantity'].max() <= 5, "Quantity constraint violated!"
                 premium = df[df['UnitPrice'] > 1000]
                 if len(premium) > 0:
-                    assert premium['Quantity'].max() <= 5, f"Premium (>$1000) items exceed 5-unit limit! Max: {premium['Quantity'].max()}"
+                    assert premium['Quantity'].max() <= 5, "Quantity constraint violated!"
                 print(f" Quantity constraints:")
                 print(f"   Premium (>$1000): {len(premium)} items, max quantity={premium['Quantity'].max()}")
                 print(f"   Expensive ($500-$1000): {len(expensive) - len(premium)} items, max quantity={expensive['Quantity'].max()}")
-            
             highvalue = df[(df['UnitPrice'] >= 200) & (df['UnitPrice'] <= 500)]
             if len(highvalue) > 0:
                 print(f"   High-value ($200-$500): {len(highvalue)} items, max quantity={highvalue['Quantity'].max()}")
-            
             medium = df[(df['UnitPrice'] >= 100) & (df['UnitPrice'] < 200)]
             if len(medium) > 0:
                 print(f"   Medium ($100-$200): {len(medium)} items, max quantity={medium['Quantity'].max()}")
-            
             cheap = df[df['UnitPrice'] < 100]
             if len(cheap) > 0:
                 print(f"   Low-cost (<$100): {len(cheap)} items, max quantity={cheap['Quantity'].max()}")
-            
-            # ISSUE #2: Product distribution check (with sampling tolerance for small datasets)
             product_dist = df['ProductSKU'].value_counts()
             top_product_pct = product_dist.iloc[0] / len(df)
             top_5_products_pct = product_dist.head(5).sum() / len(df)
-            
-            # Allow 1-2% tolerance due to random sampling (weights set to 11.9% and 40.0% but sampling can vary)
-            assert top_product_pct <= 0.15, f"Top product is {top_product_pct:.1%} of orders (expected max ~12%, sampling tolerance 15%)"
-            assert top_5_products_pct <= 0.45, f"Top 5 products are {top_5_products_pct:.1%} of orders (expected max ~40%, sampling tolerance 45%)"
-            
+            assert top_product_pct <= 0.15, "Top product distribution violated!"
+            assert top_5_products_pct <= 0.45, "Top 5 product distribution violated!"
             print(f" Product distribution (constrained Pareto with sampling tolerance):")
             print(f"   Top product: {top_product_pct:.1%} ({product_dist.iloc[0]} orders) [target: 8-12%]")
             print(f"   Top 5 products: {top_5_products_pct:.1%} ({product_dist.head(5).sum()} orders) [target: 30-40%]")
             remaining_pct = (len(df) - product_dist.head(5).sum()) / len(df)
             print(f"   Remaining {len(product_dist)-5} products: {remaining_pct:.1%} ({len(df)-product_dist.head(5).sum()} orders)")
             print(f"   Unique products: {df['ProductSKU'].nunique()}")
-
-            
-            # Sales rep consistency
             customer_rep_map = df.groupby('CustomerID')['SalesRep'].nunique()
             primary_rep_consistency = (customer_rep_map == 1).sum() / len(customer_rep_map)
             print(f" Customer-SalesRep consistency: {primary_rep_consistency:.1%} customers use single primary rep")
-            
-            # TotalSale calculation
             calc_total = (df['Quantity'] * df['UnitPrice']).round(2)
             assert (df['TotalSale'] == calc_total).all(), "TotalSale calculation error!"
             print(f" TotalSale calculation: All {len(df)} records correct")
-            
             repeat_rate = 1 - (df['CustomerID'].nunique() / len(df))
             print(f" Repeat customer rate: {repeat_rate:.1%}")
-            
             print(f" Sales reps: {df['SalesRep'].nunique()} unique representatives")
-            
             print("=" * 80)
             print(" ALL VALIDATIONS PASSED - DATA IS READY\n")
-            
-            # Drop temporary columns
             df = df.drop(['OrderDate_dt', 'CreatedDate_dt'], axis=1)
-            
         except AssertionError as e:
             print(f" VALIDATION FAILED: {e}")
             raise
-        
         return df
-
     def generate_excel_data(self, rows: int, columns: int, subject: str, 
-                           options: Optional[Dict] = None) -> pd.DataFrame:
-        """
-        Main data generation method with LLM-driven content creation.
-        Routes to specialized generators based on subject domain.
-        """
+                           options = None) -> pd.DataFrame:
         print(f" Starting generation for '{subject}' — {rows}×{columns}")
         schema = self.generate_column_headers_with_llm(subject, columns)
         subject_lower = subject.lower()
-
         previous_options = getattr(self, "_active_generation_options", {})
         self._active_generation_options = (options or {}).copy()
-
-        # Route to specialized generators
-        # Exclude 'financial transactions' from sales routing (bank transactions have different structure)
         is_financial_trans = 'financial' in subject_lower and 'transaction' in subject_lower
         is_sales = any(kw in subject_lower for kw in ['sales', 'transaction', 'order', 'invoice']) and not is_financial_trans
         is_product = any(kw in subject_lower for kw in ['product', 'catalog', 'catalogue', 'inventory', 'item'])
-        
-        # NOTE: Disabled entity-based sales generator to ensure LLM-driven generation
-        # for consistency with other subjects (Product Catalogue, Employee Info, etc.)
-        # This fixes: mixed regions, high refund rates, and ensures realistic data
-        # if is_sales and columns >= 12:
-        #     print("Using sales transaction generator (entity-based)")
-        #     return self.generate_sales_transactions_with_entities(rows, columns, subject)
         result_df: pd.DataFrame
         try:
             if is_product:
                 print("Using LLM-driven product catalogue generator")
                 result_df = self.generate_product_catalog_with_llm(rows, columns, subject, schema)
-
             else:
-                # Route to specialized employee generator
                 is_employee = any(kw in subject_lower for kw in ['employee', 'staff', 'workforce', 'personnel', 'hr'])
                 if is_employee:
                     print("Using specialized employee data generator")
                     result_df = self.generate_employee_data(rows, columns, subject)
                 else:
-                    # Default generic generator (LLM-driven)
                     print("Using generic LLM-driven generator")
                     result_df = self._generate_generic_data(rows, columns, subject, schema)
         finally:
             self._active_generation_options = previous_options
-
         return result_df
-        
     def generate_product_catalog_with_llm(self, rows: int, columns: int, 
                                           subject: str, schema: List[Dict]) -> pd.DataFrame:
-        """
-        LLM-driven product catalogue generator with STRICT CATEGORY and PRICE CONSTRAINTS.
-        
-        Ensures:
-        1. CORRECT category assignment (Electronics, Automotive, Apparel, Home Goods, Outdoor Gear)
-        2. REALISTIC price ranges based on product type
-        3. DATE validation (2020-01-01 to 2025-11-12)
-        4. SMART stock management (expensive items have lower stock, etc.)
-        """
         print(f" Generating {rows} products via LLM with STRICT realism constraints")
-        
-        # CRITICAL: Product catalog with STRICT CATEGORY MAPPING and REALISTIC PRICE RANGES
         PRODUCT_CATALOG = {
             'Electronics': {
                 'HDMI Cable 6-ft': (5.99, 14.99),
@@ -2092,21 +1322,15 @@ Return JSON:
                 'Carabiners Set': (14.99, 39.99),
             }
         }
-        
-        # STEP 1: Generate product names and categories via LLM (or fallback)
         print(" Requesting product names from LLM...")
         product_names = self._generate_product_names_from_llm(rows, subject)
         if not product_names or len(product_names) < rows:
             print(f"   LLM returned {len(product_names) if product_names else 0} names, using deterministic fallback")
             product_names = self._generate_fallback_product_names(rows)
-        
-        # STEP 2: Assign categories based on PRODUCT NAME (not random!)
         print(" Assigning categories based on product type...")
         categories_list = []
         assigned_products = []
-        
         for product_name in product_names:
-            # Find which category this product belongs to
             assigned = False
             for category, products_dict in PRODUCT_CATALOG.items():
                 if product_name in products_dict:
@@ -2114,9 +1338,7 @@ Return JSON:
                     assigned_products.append(product_name)
                     assigned = True
                     break
-            
             if not assigned:
-                # Product not found in catalog - assign to most likely category based on keywords
                 if any(kw in product_name.lower() for kw in ['shirt', 't-shirt', 'jeans', 'shoes', 'hoodie', 'shorts', 'pants', 'jacket', 'socks', 'hat', 'beanie', 'cap', 'blazer', 'cardigan', 'boots', 'sneakers']):
                     categories_list.append('Apparel')
                     assigned_products.append(product_name)
@@ -2130,158 +1352,105 @@ Return JSON:
                     categories_list.append('Home Goods')
                     assigned_products.append(product_name)
                 else:
-                    # Default to Electronics for tech-related or unknown items
                     categories_list.append('Electronics')
                     assigned_products.append(product_name)
-        
-        print(f"   Assigned {len(set(categories_list))} unique categories")
-        
-        # STEP 3: Generate prices based on product type
+        print(f"Assigned {len(set(categories_list))} unique categories")
         print(" Generating realistic prices by product type...")
         prices_list = []
         for product_name, category in zip(assigned_products, categories_list):
-            # Look up product in catalog
-            price_range = (5.99, 199.99)  # Default fallback
+            price_range = (5.99, 199.99)
             if category in PRODUCT_CATALOG and product_name in PRODUCT_CATALOG[category]:
                 price_range = PRODUCT_CATALOG[category][product_name]
-            
             price = round(random.uniform(price_range[0], price_range[1]), 2)
             prices_list.append(price)
-        
         print(f"   Price range: ${min(prices_list):.2f} - ${max(prices_list):.2f}")
-        
-        # STEP 4: Build structured product catalogue with constraints
         print(f" Building {rows} products with structured business logic...")
-        
-        dataset: Dict[str, List[Any]] = {}
+        dataset = {}
         now = datetime.now()
         date_min = datetime(2020, 1, 1)
         date_max = datetime(2025, 11, 12)
         days_range = (date_max - date_min).days
-        
         for col_schema in schema:
             col_name = col_schema.get('name', 'Field')
             col_type = col_schema.get('type', 'text')
-            col_data: List[Any] = []
-            
-            # COLUMN: ProductID
+            col_data = []
             if 'product' in col_name.lower() and 'id' in col_name.lower() and col_type == 'id':
                 col_data = [f"PRO-{i:06d}" for i in range(rows)]
-            
-            # COLUMN: ProductName
             elif 'name' in col_name.lower() and 'product' in col_name.lower():
                 col_data = assigned_products[:rows]
-            
-            # COLUMN: SKU
             elif col_name.lower() in ('sku', 'productsku'):
                 col_data = [f"SKU-{i:06d}" for i in range(rows)]
-            
-            # COLUMN: Category (STRICT, based on product name)
             elif 'category' in col_name.lower():
                 col_data = categories_list[:rows]
                 dataset['_categories'] = col_data
-            
-            # COLUMN: Price (realistic ranges)
             elif 'price' in col_name.lower() and 'list' not in col_name.lower():
                 col_data = prices_list[:rows]
                 dataset['_prices'] = col_data
-            
-            # COLUMN: Cost (70-85% of Price)
             elif 'cost' in col_name.lower():
                 prices = dataset.get('_prices', prices_list)
                 cost_ratio = [random.uniform(0.70, 0.85) for _ in range(rows)]
                 col_data = [round(p * r, 2) for p, r in zip(prices, cost_ratio)]
-            
-            # COLUMN: StockQuantity (smart logic: expensive items have lower stock)
             elif any(k in col_name.lower() for k in ['stock', 'stockquantity']):
                 prices = dataset.get('_prices', prices_list)
                 col_data = []
                 for price in prices:
                     if price < 50:
-                        # Low-cost items: higher stock (50-300 units)
                         stock = random.randint(50, 300)
                     elif price < 200:
-                        # Mid-cost items: moderate stock (20-150 units)
                         stock = random.randint(20, 150)
                     elif price < 500:
-                        # Higher-cost items: lower stock (5-50 units)
                         stock = random.randint(5, 50)
                     else:
-                        # Very expensive items: minimal stock (1-20 units)
                         stock = random.randint(1, 20)
                     col_data.append(stock)
-            
-            # COLUMN: ReorderLevel (smart logic: 15-30% of typical stock)
             elif 'reorder' in col_name.lower():
                 prices = dataset.get('_prices', prices_list)
                 stock_col = dataset.get('StockQuantity', [random.randint(10, 100) for _ in range(rows)])
                 col_data = []
                 for stock in stock_col:
                     reorder = max(5, int(stock * random.uniform(0.15, 0.30)))
-                    col_data.append(min(50, reorder))  # Cap at 50
-            
-            # COLUMN: Supplier (generated company names)
+                    col_data.append(min(50, reorder))
             elif 'supplier' in col_name.lower():
                 suppliers = [self.generate_company_name(subject) for _ in range(min(12, rows // 5))]
                 col_data = random.choices(suppliers, k=rows)
-            
-            # COLUMN: DateAdded (2020-01-01 to 2025-11-12, strict!)
             elif 'dateadded' in col_name.lower():
                 col_data = []
                 for _ in range(rows):
-                    # Generate within strict bounds: 2020-01-01 to 2025-11-12
                     random_days = random.randint(0, days_range)
                     date_val = (date_min + timedelta(days=random_days))
-                    # Double-check: ensure never exceeds 2025-11-12
                     if date_val > date_max:
                         date_val = date_max
                     col_data.append(date_val.strftime('%Y-%m-%d'))
                 dataset['_dates_added'] = col_data
-            
-            # COLUMN: CreatedDate (CONSTRAINT: DateAdded <= CreatedDate <= 2025-11-12, gap: 0-30 days)
             elif 'createddate' in col_name.lower():
                 dates_added = dataset.get('_dates_added', None)
                 col_data = []
                 for da_str in (dates_added if dates_added else [(date_min + timedelta(days=random.randint(0, days_range))).strftime('%Y-%m-%d')] * rows):
                     da = datetime.strptime(da_str, '%Y-%m-%d')
-                    # Gap: 0-30 days after DateAdded
                     days_after = random.randint(0, 30)
                     cd = da + timedelta(days=days_after)
-                    # Ensure CreatedDate never exceeds 2025-11-12
                     if cd > date_max:
                         cd = date_max
                     col_data.append(cd.strftime('%Y-%m-%d'))
                 dataset['_dates_created'] = col_data
-            
-            # COLUMN: LastModified (CONSTRAINT: CreatedDate <= LastModified <= 2025-11-12, gap: 0-365 days)
             elif 'lastmodified' in col_name.lower() or 'modified' in col_name.lower():
                 dates_created = dataset.get('_dates_created', None)
                 col_data = []
                 for dc_str in (dates_created if dates_created else [(date_min + timedelta(days=random.randint(0, days_range))).strftime('%Y-%m-%d')] * rows):
                     dc = datetime.strptime(dc_str, '%Y-%m-%d')
-                    # Gap: 0-365 days after CreatedDate (realistic modification window)
                     days_after = random.randint(0, 365)
                     lm = dc + timedelta(days=days_after)
-                    # Ensure LastModified never exceeds 2025-11-12
                     if lm > date_max:
                         lm = date_max
                     col_data.append(lm.strftime('%Y-%m-%d'))
-            
-            # COLUMN: IsActive
             elif 'isactive' in col_name.lower():
                 col_data = random.choices([True, False], weights=[0.85, 0.15], k=rows)
-            
-            # COLUMN: Notes
             elif 'notes' in col_name.lower():
                 notes = ['', 'Check stock levels', 'High demand', 'New supplier', 'Seasonal', 'Discontinued']
                 col_data = random.choices(notes, k=rows)
-            
-            # COLUMN: Status
             elif 'status' in col_name.lower():
                 statuses = ['Active', 'Inactive', 'Pending', 'Discontinued']
                 col_data = random.choices(statuses, k=rows)
-            
-            # DEFAULT columns
             else:
                 if col_type == 'id':
                     prefix = re.sub(r'[^A-Z]', '', col_name[:3].upper() or "FLD")
@@ -2294,123 +1463,78 @@ Return JSON:
                     col_data = [(date_min + timedelta(days=random.randint(0, days_range))).strftime('%Y-%m-%d') for _ in range(rows)]
                 else:
                     col_data = [f"{col_name}_{i+1}" for i in range(rows)]
-            
-            # Ensure exactly `rows` entries
             if col_data and len(col_data) == rows:
                 dataset[col_name] = col_data
             elif col_data:
                 dataset[col_name] = (col_data * ((rows // len(col_data)) + 1))[:rows]
             else:
                 dataset[col_name] = [f"{col_name}_{i+1}" for i in range(rows)]
-        
-        # Create DataFrame
         df = pd.DataFrame(dataset)
-        
-        # Remove internal marker columns
         for marker in ['_categories', '_prices', '_dates_added', '_dates_created']:
             if marker in df.columns:
                 df = df.drop(marker, axis=1)
-        
-        # Post-processing
         df = self._strip_whitespace_from_text(df)
         df = self._apply_final_production_fixes(df, subject)
-        
-        # STEP 5: Validation
         print("\n" + "=" * 80)
         print("VALIDATION RESULTS:")
         print("=" * 80)
-        
         try:
             if 'ProductName' in df.columns:
                 unique_names = df['ProductName'].nunique()
                 print(f" ProductName: {unique_names} unique out of {len(df)}")
-                # Allow 20%+ uniqueness (lowered from 40% to accommodate deterministic fallback with 101 names)
                 min_unique = max(1, int(len(df) * 0.20))
                 assert unique_names >= min_unique, f"Not enough unique names: {unique_names} (need at least {min_unique})"
-            
             if 'Category' in df.columns:
                 categories = df['Category'].value_counts()
                 print(f" Categories: {len(categories)} types - {dict(categories)}")
-            
             if 'Price' in df.columns and 'Cost' in df.columns:
                 df['Price_check'] = pd.to_numeric(df['Price'], errors='coerce')
                 df['Cost_check'] = pd.to_numeric(df['Cost'], errors='coerce')
                 valid_prices = df['Price_check'].notna().sum()
                 print(f" Price: {valid_prices}/{len(df)} valid numeric values (${df['Price_check'].min():.2f} - ${df['Price_check'].max():.2f})")
                 assert valid_prices >= len(df) * 0.95, "Too many non-numeric prices"
-                
                 cost_ratio = (df['Cost_check'] / df['Price_check']).dropna()
                 print(f" Cost/Price: {cost_ratio.mean():.1%} mean ratio (70-85% constraint)")
                 df = df.drop(['Price_check', 'Cost_check'], axis=1)
-            
             if 'DateAdded' in df.columns:
                 dates = pd.to_datetime(df['DateAdded'], errors='coerce')
                 valid_dates = dates.notna().sum()
                 min_date = dates.min()
                 max_date = dates.max()
                 print(f" DateAdded: {valid_dates}/{len(df)} valid dates ({min_date.date()} to {max_date.date()})")
-                assert max_date <= datetime(2025, 11, 12), f"Date exceeds today (2025-11-12)"
-            
+                assert max_date <= datetime(2025, 11, 12), "Date exceeds max!"
             print("=" * 80)
             print(f" ALL VALIDATIONS PASSED")
-            
         except AssertionError as e:
             print(f" VALIDATION FAILED: {e}")
             raise
-        
         print(f" Product catalogue generation complete: {len(df)} rows × {len(df.columns)} columns")
         df = self._apply_product_catalog_business_rules(df)
         return df
-    
-    def _apply_product_catalog_business_rules(self, df: pd.DataFrame) -> pd.DataFrame:
-        """
-        Apply product catalogue business logic constraints for realism.
-        
-        Rules:
-        1. IsActive must match Status (Active=True, Inactive/Discontinued=False)
-        2. Discontinued products must have StockQuantity=0 and ReorderLevel=0
-        3. Dates must follow: DateAdded <= CreatedDate <= LastModified
-        
-        Returns:
-            DataFrame with business rules applied
-        """
+    def _apply_product_catalog_business_rules(self, df: pd.DataFrame) :
         print("🔧 Applying product catalogue business rules...")
-        
         fixes_applied = []
-        
-        # RULE 1: Synchronize IsActive with Status
         if 'IsActive' in df.columns and 'Status' in df.columns:
-            # Count conflicts before fixing
             conflicts_before = (
                 ((df['IsActive'] == True) & (df['Status'].isin(['Inactive', 'Discontinued']))).sum() +
                 ((df['IsActive'] == False) & (df['Status'] == 'Active')).sum()
             )
-            
-            # Apply fixes
             df.loc[df['Status'] == 'Active', 'IsActive'] = True
             df.loc[df['Status'].isin(['Inactive', 'Discontinued']), 'IsActive'] = False
-            
             if conflicts_before > 0:
                 fixes_applied.append(f"Synchronized IsActive/Status for {conflicts_before} records")
-        
-        # RULE 2: Discontinued products must have zero inventory
         if 'Status' in df.columns:
             discontinued_mask = df['Status'] == 'Discontinued'
             products_fixed = 0
-            
             if 'StockQuantity' in df.columns:
                 products_with_stock = (discontinued_mask & (df['StockQuantity'] > 0)).sum()
                 if products_with_stock > 0:
                     df.loc[discontinued_mask, 'StockQuantity'] = 0
                     products_fixed += products_with_stock
-            
             if 'ReorderLevel' in df.columns:
                 df.loc[discontinued_mask, 'ReorderLevel'] = 0
-            
             if products_fixed > 0:
                 fixes_applied.append(f"Cleared inventory for {products_fixed} discontinued products")
-        
-        # RULE 3: Ensure date logic consistency (DateAdded <= CreatedDate <= LastModified)
         date_cols_to_check = []
         if 'DateAdded' in df.columns:
             date_cols_to_check.append('DateAdded')
@@ -2418,120 +1542,77 @@ Return JSON:
             date_cols_to_check.append('CreatedDate')
         if 'LastModified' in df.columns:
             date_cols_to_check.append('LastModified')
-        
         if len(date_cols_to_check) >= 2:
-            # Convert to datetime for comparison
             for col in date_cols_to_check:
                 df[f'{col}_dt'] = pd.to_datetime(df[col], errors='coerce')
-            
-            # Check and fix date sequences
             date_fixes = 0
             if 'DateAdded_dt' in df.columns and 'CreatedDate_dt' in df.columns:
                 bad_created = (df['CreatedDate_dt'] < df['DateAdded_dt'])
                 if bad_created.any():
-                    # Fix: set CreatedDate = DateAdded for invalid records
                     df.loc[bad_created, 'CreatedDate'] = df.loc[bad_created, 'DateAdded']
                     df.loc[bad_created, 'CreatedDate_dt'] = df.loc[bad_created, 'DateAdded_dt']
                     date_fixes += bad_created.sum()
-            
             if 'CreatedDate_dt' in df.columns and 'LastModified_dt' in df.columns:
                 bad_modified = (df['LastModified_dt'] < df['CreatedDate_dt'])
                 if bad_modified.any():
-                    # Fix: set LastModified = CreatedDate for invalid records
                     df.loc[bad_modified, 'LastModified'] = df.loc[bad_modified, 'CreatedDate']
                     date_fixes += bad_modified.sum()
-            
-            # Clean up temporary datetime columns
             for col in date_cols_to_check:
                 if f'{col}_dt' in df.columns:
                     df = df.drop(f'{col}_dt', axis=1)
-            
             if date_fixes > 0:
                 fixes_applied.append(f"Fixed date logic for {date_fixes} records")
-        
-        # Print summary
         if fixes_applied:
             for fix in fixes_applied:
                 print(f"   {fix}")
-        
         return df
-
-    def _generate_product_names_from_llm(self, count: int, subject: str) -> List[str]:
-        """
-        Request product names from LLM using a batching strategy to ensure uniqueness.
-        """
+    def _generate_product_names_from_llm(self, count: int, subject: str) :
         print(f"   Generating {count} product names in batches...")
-        
         unique_names = set()
         batch_size = 50
-        max_attempts = max(5, (count // batch_size) * 3)  # Allow 3x the necessary batches
+        max_attempts = max(5, (count // batch_size) * 3)
         attempts = 0
-        
-        # Loop until we have enough names or hit max attempts
         while len(unique_names) < count and attempts < max_attempts:
             remaining = count - len(unique_names)
-            current_batch_size = min(batch_size, remaining + 10)  # Ask for slightly more
-            
-            # Generate batch
+            current_batch_size = min(batch_size, remaining + 10)
             new_names = self._generate_product_batch_with_llm(
                 current_batch_size, 
                 subject, 
                 unique_names
             )
-            
             if not new_names:
                 print("   LLM returned no names in batch, retrying...")
                 attempts += 1
                 continue
-                
-            # Add to set (handles deduplication)
             initial_count = len(unique_names)
             unique_names.update(new_names)
             added = len(unique_names) - initial_count
-            
             print(f"   Batch {attempts+1}: Added {added} unique names (Total: {len(unique_names)}/{count})")
             attempts += 1
-            
-            # Break if we're making no progress
             if added == 0 and attempts > 5:
                 print("   No new names generated in recent batches, stopping early.")
                 break
-        
-        # Convert to list
         final_names = list(unique_names)
-        
-        # If we still don't have enough, pad by repeating the list
         if len(final_names) < count and len(final_names) > 0:
             print(f"   Padding product list from {len(final_names)} to {count}...")
             while len(final_names) < count:
                 final_names.extend(final_names)
             final_names = final_names[:count]
-            
         return final_names
-
-    def _generate_product_batch_with_llm(self, count: int, subject: str, existing_names: set) -> List[str]:
-        """Generate a single batch of product names."""
-        
-        # Create exclusion string (last 20 names to avoid immediate repetition)
+    def _generate_product_batch_with_llm(self, count: int, subject: str, existing_names: set) :
         exclusions = list(existing_names)[-20:] if existing_names else []
         exclusion_str = ", ".join(exclusions) if exclusions else "None"
-        
         prompt = f"""Generate {count} unique product names for a '{subject}' product catalogue.
-
 REQUIREMENTS:
 - Each name must be DIFFERENT (no repetition)
 - Names should be specific, descriptive, and commercially realistic
 - Include brand/model/variant details when appropriate
 - AVOID these names (recently generated): {exclusion_str}
 - Return as JSON array: ["name1", "name2", ...]
-
 Generate {count} unique product names:"""
-        
         try:
-            # Don't cache batches as we want diversity
             response = self.generate_with_llm(prompt, max_tokens=2000)
             cleaned_json = self.extract_json(response)
-            
             if cleaned_json:
                 try:
                     names = json.loads(cleaned_json)
@@ -2541,26 +1622,19 @@ Generate {count} unique product names:"""
                     pass
         except Exception as e:
             print(f"   LLM product batch generation failed: {e}")
-        
         return []
-    
-    def _generate_company_names_from_llm(self, count: int, subject: str) -> List[str]:
-        """Request B2B company names from LLM."""
+    def _generate_company_names_from_llm(self, count: int, subject: str) :
         prompt = f"""Generate {count} unique company names for B2B customers in a '{subject}' context.
-
 REQUIREMENTS:
 - Each name must be DIFFERENT (no repetition)
 - Names should sound professional and realistic (e.g., "Acme Corp", "Global Industries", "TechVision Systems")
 - Mix of industries: manufacturing, technology, retail, healthcare, finance, logistics
 - Include variety of company types: Corp, Inc, LLC, Industries, Solutions, Systems, Group
 - Return as JSON array: ["name1", "name2", ...]
-
 Generate {count} unique company names:"""
-        
         try:
             response = self.generate_with_llm(prompt, max_tokens=1500, cache_key=f"company_names_{subject}_{count}")
             cleaned_json = self.extract_json(response)
-            
             if cleaned_json:
                 try:
                     names = json.loads(cleaned_json)
@@ -2572,57 +1646,40 @@ Generate {count} unique company names:"""
                     print(f"   JSON parsing failed for company names")
         except Exception as e:
             print(f"   LLM company name generation failed: {e}")
-        
         return []
-    
-    def _generate_categories_for_products(self, product_names: List[str], subject: str) -> Dict[str, str]:
-        """Request appropriate categories for each product from LLM."""
-        # Create a sample of products to send to LLM (limit to avoid token overflow)
+    def _generate_categories_for_products(self, product_names: List[str], subject: str) :
         sample_size = min(len(product_names), 50)
         sample_products = product_names[:sample_size]
-        
         prompt = f"""For each product below, assign an appropriate category. Return as a JSON object mapping product names to categories.
-
 Products:
 {json.dumps(sample_products, indent=2)}
-
 REQUIREMENTS:
 - Categories should match the product type (e.g., vinyl LPs → "Music", laptops → "Electronics", cosmetics → "Beauty")
 - Use these category types: Electronics, Apparel, Music, Beauty, Home & Kitchen, Sports & Outdoors, Automotive, Books, Toys & Games
 - Return as JSON object: {{"product_name": "category", ...}}
-
 Generate category mappings:"""
-        
         try:
             response = self.generate_with_llm(prompt, max_tokens=2000, cache_key=f"product_categories_{subject}_{len(product_names)}")
             cleaned_json = self.extract_json(response)
-            
             if cleaned_json:
                 try:
                     mapping = json.loads(cleaned_json)
                     if isinstance(mapping, dict) and len(mapping) > 0:
                         print(f"   LLM generated categories for {len(mapping)} products")
-                        # For products not in mapping, assign a default based on common patterns
                         full_mapping = {}
                         for product in product_names:
                             if product in mapping:
                                 full_mapping[product] = mapping[product]
                             else:
-                                # Try to find a similar product in mapping or use fallback
                                 full_mapping[product] = self._guess_category_fallback(product)
                         return full_mapping
                 except json.JSONDecodeError:
                     print(f"   JSON parsing failed for product categories")
         except Exception as e:
             print(f"   LLM product category generation failed: {e}")
-        
-        # Fallback: create basic mappings based on keywords
         return {product: self._guess_category_fallback(product) for product in product_names}
-    
-    def _guess_category_fallback(self, product_name: str) -> str:
-        """Fallback category guessing based on keywords."""
+    def _guess_category_fallback(self, product_name: str) :
         product_lower = product_name.lower()
-        
         if any(word in product_lower for word in ['vinyl', 'lp', 'album', 'cd']):
             return "Music"
         elif any(word in product_lower for word in ['iphone', 'laptop', 'tv', 'camera', 'watch', 'tablet', 'mouse', 'keyboard', 'headphone', 'speaker']):
@@ -2639,25 +1696,17 @@ Generate category mappings:"""
             return "Automotive"
         else:
             return "General Merchandise"
-    
-
-
-    def _generate_categories_from_llm(self, count: int, subject: str) -> List[str]:
-        """Request product categories from LLM."""
+    def _generate_categories_from_llm(self, count: int, subject: str) :
         prompt = f"""Generate {count} product category assignments for a '{subject}' product catalogue.
-
 REQUIREMENTS:
 - Return a JSON array with {count} category names
 - Use realistic product categories (e.g., Electronics, Apparel, Automotive, etc.)
 - Distribute across multiple different categories
 - Return as JSON array: ["category1", "category2", ...]
-
 Generate {count} category assignments:"""
-        
         try:
             response = self.generate_with_llm(prompt, max_tokens=1000, cache_key=f"categories_{subject}_{count}")
             cleaned_json = self.extract_json(response)
-            
             if cleaned_json:
                 try:
                     categories = json.loads(cleaned_json)
@@ -2668,11 +1717,8 @@ Generate {count} category assignments:"""
                     print(f"   JSON parsing failed for categories")
         except Exception as e:
             print(f"   LLM category generation failed: {e}")
-        
         return []
-    
-    def _generate_fallback_product_names(self, count: int) -> List[str]:
-        """Fallback deterministic product names (used if LLM fails)."""
+    def _generate_fallback_product_names(self, count: int) :
         CATEGORY_PRODUCTS = {
             'Electronics': [
                 '4K Smart TV 55-inch', '4K Smart TV 65-inch', 'Wireless Noise-Canceling Headphones',
@@ -2711,27 +1757,16 @@ Generate {count} category assignments:"""
                 'Flashlight LED'
             ]
         }
-        
         all_products = []
         for products in CATEGORY_PRODUCTS.values():
             all_products.extend(products)
-        
-        # Cycle through and pad to requested count
         result = []
         for i in range(count):
             result.append(all_products[i % len(all_products)])
-        
-        # Shuffle for variety
         random.shuffle(result)
         return result
-
-    def generate_employee_data(self, rows: int, columns: int, subject: str) -> pd.DataFrame:
-        """
-        Specialized generator for Employee Information with realistic hierarchy and diverse names.
-        """
+    def generate_employee_data(self, rows: int, columns: int, subject: str) :
         print(f" Generating {rows} employee records with realistic hierarchy...")
-        
-        # 1. Generate Schema
         schema = [
             {'name': 'EmployeeID', 'type': 'id'},
             {'name': 'FirstName', 'type': 'text'},
@@ -2747,44 +1782,29 @@ Generate {count} category assignments:"""
             {'name': 'City', 'type': 'text'},
             {'name': 'PhoneNumber', 'type': 'phone'}
         ]
-        
-        # 2. Generate Core Employee Data via LLM (Batched with Deduplication)
         employees = []
-        batch_size = 50  # Larger batches to reduce batch boundaries
+        batch_size = 50
         remaining = rows
-        
-        # Track used names across batches to avoid duplicates
         used_first_names = set()
         used_last_names = set()
-        
         print(f"  Generating {rows} employees in batches of {batch_size} with name deduplication...")
-        
         while remaining > 0:
             current_batch = min(batch_size, remaining)
-            
-            # Generate batch with deduplication
             batch_data = self._generate_employee_batch_with_llm(
                 current_batch,
                 used_first_names,
                 used_last_names
             )
-            
-            # Update tracking sets
             for emp in batch_data:
                 if 'FirstName' in emp:
                     used_first_names.add(emp['FirstName'])
                 if 'LastName' in emp:
                     used_last_names.add(emp['LastName'])
-            
             employees.extend(batch_data)
             remaining -= len(batch_data)
-            
-            # Progress with diversity metrics
             print(f"  - Generated {len(employees)}/{rows} employees")
             print(f"  - Unique first names so far: {len(used_first_names)}")
             print(f"  - Unique last names so far: {len(used_last_names)}")
-
-        # Fallback if LLM failed completely
         if not employees:
              print("   LLM employee generation failed completely, using procedural fallback")
              for _ in range(rows):
@@ -2796,11 +1816,8 @@ Generate {count} category assignments:"""
                     'Department': random.choice(['Sales', 'Marketing', 'Engineering', 'HR', 'Finance']),
                     'JobTitle': 'Specialist'
                 })
-
-        # Trim or pad if needed
         employees = employees[:rows]
         while len(employees) < rows:
-            # Pad with procedural data
             first = random.choice(['John', 'Jane', 'Michael', 'Emily'])
             last = random.choice(['Smith', 'Johnson', 'Williams', 'Brown'])
             employees.append({
@@ -2809,148 +1826,82 @@ Generate {count} category assignments:"""
                 'Department': 'General',
                 'JobTitle': 'Staff'
             })
-        
-        # POST-PROCESSING: Regenerate duplicates to achieve 85-95 target
         print(f"  Post-processing: Ensuring 85-95 unique names...")
-        target_min = int(rows * 0.85)  # 85 for 100 employees
-        target_max = int(rows * 0.95)  # 95 for 100 employees
-        
-        # Track current diversity
+        target_min = int(rows * 0.85)
+        target_max = int(rows * 0.95)
         first_count = len(used_first_names)
         last_count = len(used_last_names)
-        
         max_regeneration_attempts = 100
         attempts = 0
-        
-        # Regenerate until we hit target
         while (first_count < target_min or last_count < target_min) and attempts < max_regeneration_attempts:
-            # Find duplicate names
             first_names = [e['FirstName'] for e in employees]
             last_names = [e['LastName'] for e in employees]
-            
-            # Identify which names appear most frequently
             from collections import Counter
             first_counts = Counter(first_names)
             last_counts = Counter(last_names)
-            
-            # Find employees with duplicate names
             dup_indices = []
             for idx, emp in enumerate(employees):
                 is_dup_first = first_counts[emp['FirstName']] > 1
                 is_dup_last = last_counts[emp['LastName']] > 1
-                
                 if is_dup_first or is_dup_last:
                     dup_indices.append((idx, is_dup_first, is_dup_last))
-            
             if not dup_indices:
-                break  # No more duplicates found
-            
-            # Regenerate one duplicate
+                break
             idx, needs_new_first, needs_new_last = dup_indices[0]
-            
-            # Generate single replacement employee
             new_batch = self._generate_employee_batch_with_llm(1, used_first_names, used_last_names)
-            
             if new_batch:
                 new_emp = new_batch[0]
-                
-                # Update tracking
                 if 'FirstName' in new_emp:
                     used_first_names.add(new_emp['FirstName'])
                 if 'LastName' in new_emp:
                     used_last_names.add(new_emp['LastName'])
-                
-                # Replace the duplicate
                 employees[idx] = new_emp
-                
-                # Update counts
                 first_count = len(set(e['FirstName'] for e in employees))
                 last_count = len(set(e['LastName'] for e in employees))
-                
                 print(f"  - Regenerated duplicate: First={first_count}, Last={last_count}")
-            
             attempts += 1
-        
         print(f"   Final diversity: {first_count} unique first names, {last_count} unique last names")
-            
-        # 3. Build DataFrame and Enrich
         df = pd.DataFrame(employees)
-        
-        # Fill missing columns procedurally
-        # EmployeeID
         df['EmployeeID'] = [self.generate_id_with_encoding('EMP', i) for i in range(rows)]
-        
-        # Country & City
         countries = ['USA', 'UK', 'Canada', 'Australia', 'Germany', 'France']
         df['Country'] = [random.choice(countries) for _ in range(rows)]
         df['City'] = df['Country'].apply(lambda c: random.choice(self._LOCATIONS.get(c, self._LOCATIONS['USA'])['cities']))
-        
-        # Email (derived from names)
         df['Email'] = df.apply(lambda x: self.generate_email(x['FirstName'], x['LastName']), axis=1)
-        
-        # Phone
         df['PhoneNumber'] = df['Country'].apply(lambda c: self.generate_phone(c))
-        
-        # HireDate
         now = datetime.now()
         df['HireDate'] = [(now - timedelta(days=random.randint(30, 365*10))).strftime('%Y-%m-%d') for _ in range(rows)]
-        
-        # Status
         df['Status'] = random.choices(['Active', 'On Leave', 'Terminated'], weights=[0.9, 0.05, 0.05], k=rows)
-        
-        # Salary (based on job title/dept)
         df['Salary'] = df.apply(lambda x: self.generate_salary(x['JobTitle'], x['Country'], x['Department']), axis=1)
-
-        # 4. Implement Realistic Manager Hierarchy
         print("  Building manager hierarchy...")
-        
-        # Identify potential managers (top 15%)
         num_managers = max(1, int(rows * 0.15))
         manager_indices = random.sample(range(rows), num_managers)
-        
-        # Assign senior titles to managers
         senior_titles = ['Manager', 'Director', 'VP', 'Team Lead', 'Head of']
         for idx in manager_indices:
             current_title = df.at[idx, 'JobTitle']
             if not any(t in current_title for t in senior_titles):
                 df.at[idx, 'JobTitle'] = f"{current_title} {random.choice(senior_titles)}"
-        
-        # Create hierarchy
-        # Top executives (report to Board)
         num_execs = max(1, int(num_managers * 0.2))
         exec_indices = manager_indices[:num_execs]
         mid_manager_indices = manager_indices[num_execs:]
-        
         managers = []
         for i in range(rows):
             if i in exec_indices:
                 managers.append("Board of Directors")
             elif i in mid_manager_indices:
-                # Report to an exec
                 mgr_idx = random.choice(exec_indices)
                 managers.append(f"{df.at[mgr_idx, 'FirstName']} {df.at[mgr_idx, 'LastName']}")
             else:
-                # Report to any manager (exec or mid)
                 mgr_idx = random.choice(manager_indices)
                 managers.append(f"{df.at[mgr_idx, 'FirstName']} {df.at[mgr_idx, 'LastName']}")
-                
         df['Manager'] = managers
-        
         print(f" Employee generation complete: {len(df)} rows")
         return df
-
-    def _generate_employee_batch_with_llm(self, count: int, used_first_names: set = None, used_last_names: set = None) -> List[Dict]:
-        """Generate a batch of diverse employee profiles via LLM, avoiding duplicate names."""
-        
+    def _generate_employee_batch_with_llm(self, count = None, used_last_names: set = None) :
         used_first_names = used_first_names or set()
         used_last_names = used_last_names or set()
-        
-        # Build exclusion lists for prompt (limit to 30 names for readability)
         first_exclusions = ", ".join(sorted(list(used_first_names))[:30]) if used_first_names else "none yet"
         last_exclusions = ", ".join(sorted(list(used_last_names))[:30]) if used_last_names else "none yet"
-        
         prompt = f"""Generate {count} realistic employee profiles for a global company.
-
 CRITICAL REQUIREMENTS:
 - Return a JSON array of objects
 - Each object must have: "FirstName", "LastName", "Department", "JobTitle"
@@ -2962,9 +1913,7 @@ CRITICAL REQUIREMENTS:
   Engineering, Product Management, Sales, Marketing, Customer Success, Operations, Finance, Human Resources, IT / Infrastructure, Data Science, Design / UX, Quality Assurance, Legal, Research & Development, Security
 - Job Titles: Vary by seniority (Junior, Senior, Manager, Director, VP) and match the department.
 - JSON Format: [{{"FirstName": "Name", "LastName": "Name", "Department": "Dept", "JobTitle": "Title"}}, ...]
-
 Generate {count} unique profiles:"""
-
         try:
             response = self.generate_with_llm(prompt, max_tokens=2000)
             cleaned_json = self.extract_json(response)
@@ -2974,23 +1923,13 @@ Generate {count} unique profiles:"""
                     return data
         except Exception as e:
             print(f"   LLM batch generation failed: {e}")
-            
         return []
-
     def _generate_generic_data(self, rows: int, columns: int, subject: str, 
                                schema: List[Dict]) -> pd.DataFrame:
-        """
-        Generic LLM-driven data generator for subjects not caught by specialized routers.
-        """
         print(f" Generating {rows} generic records via LLM")
-        
-        dataset: Dict[str, List[Any]] = {}
+        dataset = {}
         now = datetime.now()
-        
-        # Check if this is a financial transaction subject
         is_financial = 'financial' in subject.lower() and 'transaction' in subject.lower()
-        
-        # Financial-specific: pre-generate realistic merchant names
         if is_financial:
             merchant_names = [
                 "Amazon", "Walmart", "Target", "Costco", "Best Buy",
@@ -3002,81 +1941,57 @@ Generate {count} unique profiles:"""
                 "AT&T", "Verizon", "Comcast", "Electric Company", "Water Utility",
                 "Bank Transfer", "Direct Deposit", "Payroll", "Insurance Payment", "Mortgage Payment"
             ]
-
-        # Pre-generate names if needed
         name_cols_exist = any('name' in c.get('name', '').lower() for c in schema)
         full_names = [self.generate_person_name() for _ in range(rows)] if name_cols_exist else None
-        
-        # LLM-driven: Pre-generate diverse product names if ProductName column exists
-        product_names_pool: List[str] = []
+        product_names_pool = []
         has_product_name = any('product' in c.get('name', '').lower() and 'name' in c.get('name', '').lower() for c in schema)
         if has_product_name:
             print("   Generating diverse product names via LLM...")
-            # Generate 2-3x more names than needed for variety
-            product_count = min(rows, 100)  # Cap at 100 for performance
+            product_count = min(rows, 100)
             product_names_pool = self._generate_product_names_from_llm(product_count, subject)
             if not product_names_pool:
-                # Fallback if LLM fails
                 product_names_pool = self._generate_fallback_product_names(product_count)
-        
-        # LLM-driven: Pre-generate diverse customer/company names if CustomerName column exists
-        customer_names_pool: List[str] = []
+        customer_names_pool = []
         has_customer_name = any('customer' in c.get('name', '').lower() and 'name' in c.get('name', '').lower() for c in schema)
         if has_customer_name:
             print("   Generating diverse customer names via LLM...")
-            # Generate company names for B2B context
-            customer_count = min(max(rows // 3, 30), 60)  # 30-60 customers for realism
+            customer_count = min(max(rows // 3, 30), 60)
             customer_names_pool = self._generate_company_names_from_llm(customer_count, subject)
             if not customer_names_pool:
-                # Fallback if LLM fails
                 customer_names_pool = [self.generate_company_name(subject) for _ in range(customer_count)]
-        
-        # LLM-driven: Generate matching categories for products if both ProductName AND Category columns exist
-        product_categories_map: Dict[str, str] = {}
+        product_categories_map = {}
         has_category = any('category' in c.get('name', '').lower() for c in schema)
         if has_product_name and has_category and product_names_pool:
             print("    Generating matching categories for products via LLM...")
             product_categories_map = self._generate_categories_for_products(product_names_pool, subject)
-
         for col_schema in schema:
             col_name = col_schema.get('name', 'Field')
             col_type = col_schema.get('type', 'text')
             examples = col_schema.get('examples') or []
-            col_data: List[Any] = []
-
+            col_data = []
             if col_type == 'id':
                 prefix = re.sub(r'[^A-Z]', '', (col_name[:3].upper() or "ID"))
                 col_data = [self.generate_id_with_encoding(prefix, i) for i in range(rows)]
-
             elif col_type == 'email':
-                # Standardize email domains for consistency
                 domain = "company.com"
                 if full_names:
                     col_data = [f"{name.split()[0].lower()}.{name.split()[-1].lower()}@{domain}" for name in full_names]
                 else:
                     col_data = [f"employee{i}@{domain}" for i in range(rows)]
-
             elif col_type in ('text', 'category'):
-                # LLM-driven: use diverse product names for ProductName column
                 if 'product' in col_name.lower() and 'name' in col_name.lower() and product_names_pool:
                     col_data = random.choices(product_names_pool, k=rows)
-                # LLM-driven: use matching categories for Category column when we have product-category mapping
                 elif 'category' in col_name.lower() and product_categories_map and 'product' not in col_name.lower():
-                    # Get the ProductName column data to map categories
                     product_col_name = next((c.get('name') for c in schema if 'product' in c.get('name', '').lower() and 'name' in c.get('name', '').lower()), None)
                     if product_col_name and product_col_name in dataset:
-                        # Map each product name to its category
                         col_data = [product_categories_map.get(product, random.choice(list(product_categories_map.values()) or examples or ['Unknown'])) 
                                     for product in dataset[product_col_name]]
                     else:
                         col_data = random.choices(list(product_categories_map.values()) if product_categories_map else examples, k=rows)
-                # LLM-driven: use diverse customer names for CustomerName column
                 elif 'customer' in col_name.lower() and 'name' in col_name.lower() and customer_names_pool:
                     col_data = random.choices(customer_names_pool, k=rows)
-                # Financial-specific: use merchant names for MerchantName column
                 elif is_financial and 'merchant' in col_name.lower():
                     col_data = random.choices(merchant_names, k=rows)
-                # Sales Reps: generate a pool of 5-10 reps
                 elif 'sales' in col_name.lower() and 'rep' in col_name.lower():
                     reps = [self.generate_person_name() for _ in range(random.randint(5, 10))]
                     col_data = random.choices(reps, k=rows)
@@ -3084,66 +1999,47 @@ Generate {count} unique profiles:"""
                     col_data = random.choices(examples, k=rows)
                 else:
                     col_data = [f"{col_name}_{i+1}" for i in range(rows)]
-
             elif col_type == 'phone':
                 col_data = [self.generate_phone() for _ in range(rows)]
-
             elif col_type == 'date':
-                # Financial-specific: Ensure PostedDate >= TransactionDate
                 if is_financial and 'posted' in col_name.lower() and 'TransactionDate' in dataset:
                     col_data = []
                     for txn_date_str in dataset['TransactionDate']:
                         try:
                             txn_date = datetime.strptime(str(txn_date_str), "%Y-%m-%d")
-                            # Posted 0-5 days after transaction
                             posted_date = txn_date + timedelta(days=random.randint(0, 5))
                             col_data.append(posted_date.strftime("%Y-%m-%d"))
                         except:
                             col_data.append(self.generate_date())
                 else:
                     col_data = [self.generate_date() for _ in range(rows)]
-
             elif col_type in ('int', 'integer', 'number'):
                 if 'quantity' in col_name.lower():
                     col_data = [random.randint(1, 100) for _ in range(rows)]
                 else:
                     col_data = [random.randint(1, 1000) for _ in range(rows)]
-
             elif col_type in ('float', 'money', 'price', 'currency'):
-                # Explicitly handle price/cost/amount to prevent date generation
                 if any(k in col_name.lower() for k in ['price', 'cost', 'amount', 'sale', 'total', 'balance']):
                     if is_financial and 'amount' in col_name.lower():
-                        # Power-law distribution for financial amounts
                         col_data = [round(random.paretovariate(1.5) * 50, 2) for _ in range(rows)]
                     else:
                         col_data = [round(random.uniform(10.0, 1000.0), 2) for _ in range(rows)]
                 else:
                     col_data = [round(random.uniform(10.0, 1000.0), 2) for _ in range(rows)]
-            
-            # Fallback for unknown types that might be price-related
             elif any(k in col_name.lower() for k in ['price', 'cost', 'amount', 'sale', 'total']):
                  col_data = [round(random.uniform(10.0, 1000.0), 2) for _ in range(rows)]
-
             elif col_type == 'boolean':
                 col_data = random.choices([True, False], weights=[0.8, 0.2], k=rows)
-
             elif col_type == 'percentage':
                 col_data = [round(random.uniform(0, 100), 2) for _ in range(rows)]
-
             elif col_type == 'url':
                 col_data = [f"https://example.com/{col_name.lower().replace(' ', '_')}/{i+1}" for i in range(rows)]
-
             else:
                 col_data = [f"{col_name}_{i+1}" for i in range(rows)]
-
             if isinstance(col_data, list):
                 col_data = [str(x).strip() if x is not None else x for x in col_data]
-
             dataset[col_name] = col_data
-        
-        # Post-processing: Calculate TotalSale if missing or needing update
         if 'Quantity' in dataset and 'UnitPrice' in dataset:
-            # Find TotalSale column or create it
             total_col = next((c for c in dataset.keys() if 'total' in c.lower() and 'sale' in c.lower()), None)
             if total_col:
                 print("   Calculating TotalSale from Quantity * UnitPrice...")
@@ -3151,56 +2047,34 @@ Generate {count} unique profiles:"""
                     round(float(q) * float(p), 2) 
                     for q, p in zip(dataset['Quantity'], dataset['UnitPrice'])
                 ]
-
-
         df = pd.DataFrame(dataset)
-
-        # Post-processing
         df = self._strip_whitespace_from_text(df)
         df = self._apply_category_standardization(df, [])
         df = self._validate_all_dates_in_past(df)
         df = self._apply_final_production_fixes(df, subject)
-
-        # Final validation
         try:
             _ = self.validate_data_quality_with_llm(df, subject)
         except Exception:
             pass
-
         print(f" Generation complete: {len(df)} rows × {len(df.columns)} columns")
         return df
-
     def generate_data_file(self, rows: int, columns: int, subject: str,
-                           options: Optional[Dict] = None, output_path: Optional[str] = None) -> str:
-        """
-        Generate data and write to a file. Returns the path to the written file.
-
-        options:
-          - format: 'xlsx' (default) or 'csv'
-        """
+                           options = None, output_path: Optional[str] = None) -> str:
         options = options or {}
         fmt = options.get('format', 'xlsx').lower()
-        # Generate dataframe using existing generator
         df = self.generate_excel_data(rows, columns, subject, options)
-
-        # Choose output path
         if not output_path:
             safe_subject = re.sub(r'[^0-9A-Za-z_-]', '_', subject) or "data"
             ext = 'xlsx' if fmt in ('xlsx', 'excel') else 'csv'
             output_path = os.path.join(tempfile.gettempdir(), f"{safe_subject}_{rows}x{columns}.{ext}")
-
-        # Write file
         try:
             if fmt in ('xlsx', 'excel'):
-                # Prefer openpyxl engine if available; pandas will fallback if not
                 with pd.ExcelWriter(output_path, engine='openpyxl') as writer:
                     df.to_excel(writer, index=False, sheet_name='Sheet1')
             else:
                 df.to_csv(output_path, index=False)
         except Exception:
-            # Fallback: write CSV if Excel write fails
             fallback_path = os.path.splitext(output_path)[0] + '.csv'
             df.to_csv(fallback_path, index=False)
             return fallback_path
-
         return output_path

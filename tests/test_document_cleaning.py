@@ -3,7 +3,6 @@ import os
 import unittest
 from unittest.mock import MagicMock
 
-# Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from generators.document_generator import DocumentGenerator
@@ -26,7 +25,6 @@ class TestDocumentCleaning(unittest.TestCase):
     def test_clean_json_block(self):
         raw_content = '```json\n{"content": "text"}\n```'
         cleaned = self.doc_gen._clean_content(raw_content)
-        # Expected: text (JSON parsed and content extracted)
         self.assertEqual(cleaned, "text")
 
     def test_clean_plain_text(self):
