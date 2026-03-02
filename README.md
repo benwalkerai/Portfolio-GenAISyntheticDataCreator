@@ -150,16 +150,19 @@ uv run create_data.py --docx --subject "Future of AI" --pages 10 --doc-type whit
 
 ```
 synthetic-data-generator/
-├── main.py                    # Web application entry point
-├── create_data.py             # CLI entry point
-├── interface.py               # Gradio UI components
-├── settings.py                # Configuration and constants
-├── data_generator.py          # Main orchestrator
-├── excel_generator.py         # Data file generation engine
-├── document_generator.py      # Document generation engine
-├── helpers.py                 # Utility functions
-├── product_constraints.py     # Product catalog validation
-└── requirements.txt           # Python dependencies
+├── config/
+│   ├── settings.py
+│   └── logging_config.py
+├── generators/
+│   ├── data_generator.py
+│   ├── document_generator.py
+│   └── excel_generator.py
+├── ui/
+│   └── interface.py
+├── utils/
+│   ├── helpers.py
+│   └── product_constraints.py
+├── tests/
 ```
 
 ## Configuration
