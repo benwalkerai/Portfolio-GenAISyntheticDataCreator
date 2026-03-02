@@ -150,7 +150,7 @@ def generate_employee_data(data_generator: Any, llm_cache: Dict[str, str],
     senior_titles = ['Manager', 'Director', 'VP', 'Team Lead', 'Head of']
     for idx in manager_indices:
         current_title = df.at[idx, 'JobTitle']
-        if not any(t in current_title for t in senior_titles):
+        if not any(t in str(current_title) for t in senior_titles):
             df.at[idx, 'JobTitle'] = f"{current_title} {random.choice(senior_titles)}"
     num_execs = max(1, int(num_managers * 0.2))
     exec_indices = manager_indices[:num_execs]

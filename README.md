@@ -151,18 +151,31 @@ uv run create_data.py --docx --subject "Future of AI" --pages 10 --doc-type whit
 ```
 synthetic-data-generator/
 ├── config/
-│   ├── settings.py
-│   └── logging_config.py
+│   ├── settings.py              # Application configuration
+│   └── logging_config.py        # Logging setup
 ├── generators/
-│   ├── data_generator.py
-│   ├── document_generator.py
-│   └── excel_generator.py
+│   ├── data_generator.py        # Main orchestrator
+│   ├── document_generator.py    # Document generation
+│   ├── excel_generator.py       # Excel data orchestrator
+│   ├── constants.py             # Static data & reference tables
+│   ├── llm_utils.py             # LLM interaction layer
+│   ├── value_generators.py      # Single-value generators (names, IDs, dates)
+│   ├── schema_templates.py      # Fallback schemas
+│   ├── validators.py            # Data quality validation
+│   ├── employee_generator.py    # Employee dataset generation
+│   ├── product_generator.py     # Product catalog generation
+│   └── sales_generator.py       # Sales transaction generation
 ├── ui/
-│   └── interface.py
+│   └── interface.py             # Gradio web interface
 ├── utils/
-│   ├── helpers.py
-│   └── product_constraints.py
+│   ├── helpers.py               # Utility functions
+│   └── product_constraints.py   # Product business rules
 ├── tests/
+│   ├── test_document_cleaning.py
+│   └── test_markdown_conversion.py
+├── main.py                      # Web UI entry point
+├── create_data.py               # CLI entry point
+└── requirements.txt             # Python dependencies
 ```
 
 ## Configuration

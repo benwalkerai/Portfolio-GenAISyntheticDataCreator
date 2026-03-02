@@ -204,7 +204,7 @@ def apply_country_city_fix(df: pd.DataFrame, country_city_cache: Dict[str, List[
         country = df.at[idx, 'Country']
         city = df.at[idx, 'City']
         if pd.notna(country) and pd.notna(city):
-            valid_cities = country_city_cache.get(country, [])
+            valid_cities = country_city_cache.get(str(country), [])
             if len(valid_cities) > 0 and city not in valid_cities:
                 df.at[idx, 'City'] = random.choice(valid_cities)
                 fixes += 1

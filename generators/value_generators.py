@@ -166,7 +166,7 @@ def generate_person_name(country: Optional[str] = None) -> str:
         'India': 'South Asian',
         'Germany': 'European', 'France': 'European', 'Italy': 'European'
     }
-    region = region_map.get(country, 'Anglo')
+    region = region_map.get(country or 'USA', 'Anglo')
     name_set = INTERNATIONAL_NAMES.get(region, INTERNATIONAL_NAMES['Anglo'])
     return f"{random.choice(name_set['first'])} {random.choice(name_set['last'])}"
 
