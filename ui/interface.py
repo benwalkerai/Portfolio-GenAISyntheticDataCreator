@@ -148,11 +148,10 @@ def create_gradio_app():
                                 choices=config["content_options"], 
                                 value=config["content_options"][0]
                             ),
-                            ),
                             gr.update(visible=True),
                             gr.update(visible=False, value="Product Catalogue"),
                             gr.update(visible=False)
-                        ]
+                            ]
                     else:
                         return [
                             gr.update(

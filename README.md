@@ -6,6 +6,8 @@ Synthetic data generation app using **Local LLMs** (Ollama, llama.cpp, etc.) wit
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![Gradio](https://img.shields.io/badge/UI-Gradio-orange)
 
+![Screenshot](docs/screenshot.png)
+
 ## Features
 
 ### Data Generation
