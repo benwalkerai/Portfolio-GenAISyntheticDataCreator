@@ -1,0 +1,101 @@
+FirstName,LastName,Department,JobTitle,EmployeeID,Country,City,Email,PhoneNumber,HireDate,Status,Salary,Manager
+Aiden,Smith,Engineering,Senior Engineer,EMP-00000,India,Chennai,aidensmith@example.com,+91 84334 12590,2019-05-11,Active,15700,Diego Martinez
+Sofia,Nguyen,Marketing,Manager,EMP-00001,Canada,Toronto,sofia.nguyen65@company.com,+1 (877) 285-7749,2018-10-06,Active,134300,Zainab Ali
+Yuki,Tanaka,Product Management,Junior Product Manager,EMP-00002,India,Chennai,yukitanaka@example.com,+91 79871 48027,2016-05-22,Active,20000,Amara Okafor
+Liam,Johnson,Sales,Director,EMP-00003,USA,Austin,ljohnson@corporate.com,+1 (681) 229-1009,2024-03-05,Active,132100,Saanvi Sharma
+Fatima,Al-Farsi,Human Resources,VP,EMP-00004,Canada,Vancouver,fatimaalfarsi@company.com,+1 (450) 842-2100,2020-10-19,Terminated,176700,Diego Martinez
+Nia,Moyo,Customer Success,Manager,EMP-00005,France,Marseille,nmoyo@example.com,+33 2 53 46 72 43,2018-06-13,Active,103000,Kofi Mensah
+Oliver,Brown,Finance,Senior Analyst,EMP-00006,Germany,Berlin,oliver.brown@corporate.com,+49 7422 21206524,2016-08-21,Active,102600,Omar Sayed
+Anya,Petrova,Design / UX,Senior Designer,EMP-00007,Japan,Osaka,anyapetrova@corporate.com,+81 81-5281-5605,2025-04-23,Active,54600,Zainab Ali
+Raj,Patel,IT / Infrastructure,Manager,EMP-00008,France,Nantes,rajpatel@corporate.com,+33 8 60 79 63 61,2024-01-29,Active,64200,Omar Khan
+Isabella,Martinez,Operations,Junior Operations Coordinator,EMP-00009,Japan,Nagoya,isabella.martinez98@example.com,+81 15-8169-3078,2016-03-15,Active,32700,Kiran Mehta
+Kofi,Mensah,Quality Assurance,Senior QA Engineer Manager,EMP-00010,Canada,Vancouver,kofi.mensah@company.com,+1 (869) 316-7546,2020-05-24,Active,93600,Nia Okafor
+Clara,Schmidt,Research & Development,Director,EMP-00011,USA,Seattle,clara.schmidt88@corporate.com,+1 (840) 582-2373,2025-06-01,Active,196700,Nia Okafor
+Zara,Khan,Security,Manager,EMP-00012,Canada,Vancouver,zkhan@company.com,+1 (835) 825-6125,2022-12-01,Active,71700,Amara Okafor
+Ethan,Nguyen,Data Science,Junior Data Scientist,EMP-00013,UK,London,ethannguyen@example.com,+44 1053 8056 7434,2025-01-12,Terminated,34600,Liam Johnson
+Maya,Singh,Sales,Senior Sales Executive,EMP-00014,France,Marseille,maya.singh@corporate.com,+33 3 85 84 35 29,2025-05-25,Active,64500,Amara Okafor
+Lucas,Davis,Marketing,Director,EMP-00015,Germany,Dusseldorf,ldavis@example.com,+49 650 57540045,2023-04-22,Active,108700,Clara Schmidt
+Chloe,Wilson,Customer Success,Senior Customer Success Manager,EMP-00016,Canada,Ottawa,chloewilson@corporate.com,+1 (644) 296-3778,2016-08-11,Active,102100,Omar Sayed
+Ahmed,Hassan,Finance,Manager,EMP-00017,India,Pune,ahmedhassan@example.com,+91 86970 38115,2021-10-18,Active,17300,Saanvi Sharma
+Freya,Olsen,Engineering,Junior Engineer Manager,EMP-00018,USA,Chicago,freya.olsen@example.com,+1 (802) 666-3674,2025-12-29,Active,115700,Nia Okafor
+Diego,Lopez,Product Management,Senior Product Manager,EMP-00019,USA,New York,diego.lopez@company.com,+1 (781) 498-6046,2021-01-10,Active,202300,Raj Patel
+Saanvi,Sharma,IT / Infrastructure,Junior IT Specialist Director,EMP-00020,Germany,Berlin,saanvi.sharma73@corporate.com,+49 8304 47836441,2025-01-13,Active,54300,Board of Directors
+Emilia,Rossi,Design / UX,Manager,EMP-00021,Germany,Dusseldorf,emiliarossi@corporate.com,+49 2846 69956515,2021-10-17,Active,132700,Omar Khan
+Jamal,Abdi,Operations,Senior Operations Manager,EMP-00022,Germany,Berlin,jabdi@company.com,+49 7762 17597765,2025-08-12,Active,140900,Kiran Mehta
+Hannah,Kim,Quality Assurance,Junior QA Tester,EMP-00023,Germany,Berlin,hannahkim@corporate.com,+49 6705 55095098,2022-09-26,On Leave,70100,Clara Schmidt
+Omar,El-Sayed,Legal,Director,EMP-00024,Germany,Hamburg,omar.elsayed@corporate.com,+49 4601 8023333,2017-02-24,Active,92500,Freya Olsen
+Lara,Kovacs,Research & Development,Senior Research Scientist,EMP-00025,France,Nice,lara.kovacs@corporate.com,+33 2 78 31 65 93,2024-02-20,Active,129000,Omar Sayed
+Noah,Miller,Sales,Junior Sales Associate,EMP-00026,Canada,Edmonton,noah.miller@corporate.com,+1 (826) 602-1875,2017-04-15,Active,40500,Zainab Ali
+Amina,Jabari,Customer Success,Manager,EMP-00027,France,Marseille,amina.jabari14@company.com,+33 6 98 10 38 28,2019-06-19,Active,68700,Zainab Ali
+Leo,Martins,Finance,Junior Financial Analyst,EMP-00028,France,Toulouse,leo.martins@corporate.com,+33 2 82 61 97 99,2016-12-23,Active,35700,Kofi Mensah
+Anika,Chatterjee,Engineering,Senior Engineer,EMP-00029,Australia,Melbourne,achatterjee@example.com,+61 4 9589 9233,2018-09-09,Active,101300,Omar Khan
+Carmen,Sanchez,Marketing,VP,EMP-00030,India,Delhi,carmensanchez@company.com,+91 72011 67452,2020-06-30,Active,12900,Nia Okafor
+Tariq,Nasser,Product Management,Manager,EMP-00031,USA,Houston,tariqnasser@example.com,+1 (643) 644-6121,2026-01-03,Active,91900,Zainab Ali
+Mila,Zhang,IT / Infrastructure,Senior IT Manager,EMP-00032,Japan,Kobe,mzhang@company.com,+81 7-4751-1358,2024-03-25,Active,68100,Fatou Diallo
+Avery,Anderson,Data Science,Junior Data Analyst,EMP-00033,Canada,Montreal,aanderson@company.com,+1 (826) 920-8365,2018-10-02,Active,48900,Liam Johnson
+Jin,Li,Design / UX,Junior Designer,EMP-00034,Canada,Edmonton,jli@corporate.com,+1 (722) 797-9768,2016-10-01,Active,53200,Omar Sayed
+Khalid,Yusuf,Quality Assurance,Manager,EMP-00035,Canada,Montreal,khalid.yusuf60@corporate.com,+1 (439) 502-5980,2023-04-21,Active,81500,Freya Olsen
+Sofia,Klein,Research & Development,Junior Research Analyst,EMP-00036,Germany,Stuttgart,sofia.klein@company.com,+49 1661 66883700,2021-01-09,Active,46500,Zainab Ali
+Dante,Bianchi,Sales,Senior Sales Manager,EMP-00037,India,Delhi,dbianchi@example.com,+91 98492 13960,2024-01-23,Active,10600,Raj Patel
+Zainab,Ali,Customer Success,Junior Customer Success Specialist Manager,EMP-00038,USA,Los Angeles,zainab.ali76@corporate.com,+1 (864) 466-3283,2023-03-20,Active,55100,Board of Directors
+Ravi,Kumar,Finance,Senior Financial Manager,EMP-00039,France,Paris,rkumar@example.com,+33 3 52 46 69 29,2017-12-18,Active,130400,Zainab Ali
+Lina,Ng,Engineering,Junior Engineer,EMP-00040,Japan,Nagoya,lng@corporate.com,+81 14-9618-2249,2026-01-31,Active,33400,Liam Johnson
+Victor,Hernandez,Product Management,Director,EMP-00041,Japan,Kobe,vhernandez@example.com,+81 57-7115-8966,2024-12-04,Active,97800,Zainab Ali
+Elena,Peterson,IT / Infrastructure,Senior IT Specialist,EMP-00042,UK,Edinburgh,epeterson@example.com,+44 1058 8889 7546,2023-09-01,Active,82600,Omar Sayed
+Amara,Okafor,Data Science,Manager,EMP-00043,India,Chennai,amaraokafor@corporate.com,+91 79580 52435,2018-09-04,Active,16300,Zainab Ali
+Nikolai,Ivanov,Design / UX,Senior Designer VP,EMP-00044,France,Nantes,nivanov@company.com,+33 5 34 87 32 99,2024-09-20,Active,100400,Zainab Ali
+Fatou,Diallo,Quality Assurance,Junior QA Engineer Team Lead,EMP-00045,France,Paris,fatou.diallo70@example.com,+33 2 96 91 22 46,2019-05-13,Active,96300,Zainab Ali
+Yasmin,Hussein,Legal,Manager,EMP-00046,Australia,Brisbane,yasmin.hussein@company.com,+61 4 1998 5592,2018-09-30,Active,98200,Clara Schmidt
+Jasper,Baker,Research & Development,Junior Research Scientist,EMP-00047,India,Pune,jbaker@example.com,+91 80902 14720,2025-12-02,Active,11500,Liam Johnson
+Liam,Nguyen,Engineering,Junior Engineer,EMP-00048,Canada,Calgary,liam.nguyen@company.com,+1 (611) 546-7367,2021-02-22,Active,86400,Kiran Mehta
+Sofia,Martinez,Product Management,Product Manager,EMP-00049,Japan,Fukuoka,sofia.martinez41@company.com,+81 87-5918-2131,2017-03-25,On Leave,54600,Clara Schmidt
+Raj,Patel,Sales,Senior Sales Executive,EMP-00050,Australia,Gold Coast,raj.patel4@company.com,+61 6 3678 9997,2018-02-13,Active,129400,Fatou Diallo
+Yara,Khalil,Marketing,Marketing Specialist,EMP-00051,Australia,Sydney,yara.khalil@example.com,+61 2 7042 2657,2020-03-29,Active,77500,Amara Okafor
+Omar,Sayed,Customer Success,Customer Success Manager,EMP-00052,Canada,Winnipeg,omar.sayed80@corporate.com,+1 (676) 358-3927,2018-10-29,Active,101800,Zainab Ali
+Nia,Okafor,Operations,Operations Coordinator,EMP-00053,USA,Dallas,nia.okafor@example.com,+1 (244) 643-2078,2025-02-25,Active,104700,Raj Patel
+Maya,Zhang,Finance,Financial Analyst,EMP-00054,USA,Denver,mayazhang@corporate.com,+1 (562) 614-1892,2023-11-17,Active,93200,Amara Okafor
+Jasper,Schmidt,Human Resources,HR Manager,EMP-00055,India,Pune,jasper.schmidt46@corporate.com,+91 98103 85912,2019-07-15,Active,12100,Fatou Diallo
+Aisha,Abdul,IT / Infrastructure,IT Support Specialist,EMP-00056,UK,Bristol,aishaabdul@company.com,+44 1671 9900 5889,2022-10-01,Active,86800,Kiran Mehta
+Luca,Rossi,Data Science,Data Scientist,EMP-00057,India,Delhi,lrossi@example.com,+91 91767 57348,2021-07-13,Active,8800,Saanvi Sharma
+Elena,Petrov,Design / UX,UX Designer,EMP-00058,Germany,Berlin,elena.petrov@corporate.com,+49 9335 71050355,2025-08-12,Active,87000,Omar Khan
+Kiran,Mehta,Quality Assurance,QA Engineer Team Lead,EMP-00059,France,Lyon,kiranmehta@company.com,+33 7 53 35 82 59,2025-11-09,Active,64600,Saanvi Sharma
+Santiago,Cortez,Legal,Legal Advisor,EMP-00060,Germany,Frankfurt,santiago.cortez39@corporate.com,+49 5763 93624745,2021-07-29,Active,117400,Raj Patel
+Fatima,Hassan,Research & Development,R&D Scientist,EMP-00061,India,Delhi,fatima.hassan78@company.com,+91 99747 72317,2017-06-15,Active,9200,Raj Patel
+Zara,Ali,Security,Security Analyst,EMP-00062,UK,Edinburgh,zaraali@example.com,+44 1577 7531 8441,2025-08-03,Active,66200,Fatou Diallo
+Mateo,Gonzalez,Engineering,Senior Engineer,EMP-00063,Australia,Adelaide,mateogonzalez@corporate.com,+61 5 4492 7676,2017-01-25,Active,93900,Kofi Mensah
+Anika,Singh,Product Management,Product Director,EMP-00064,USA,Denver,asingh@example.com,+1 (605) 560-9680,2016-07-25,Active,113500,Liam Johnson
+Tariq,El-Hassan,Sales,Sales Manager,EMP-00065,France,Paris,tariq.elhassan45@example.com,+33 8 52 83 36 39,2025-03-15,Active,92000,Raj Patel
+Clara,López,Marketing,Marketing Manager,EMP-00066,UK,Bristol,clara.lpez@example.com,+44 1338 5851 6544,2024-05-23,Active,119800,Clara Schmidt
+Ravi,Choudhury,Customer Success,Customer Support Specialist,EMP-00067,France,Nantes,ravi.choudhury98@example.com,+33 3 46 72 84 85,2017-09-02,Active,59100,Nia Okafor
+Nadia,Khan,Operations,Operations Manager,EMP-00068,UK,Liverpool,nadia.khan27@company.com,+44 1430 4305 1287,2023-11-28,Active,89700,Kofi Mensah
+Yuki,Tanaka,Finance,Finance Manager,EMP-00069,UK,Edinburgh,yuki.tanaka@corporate.com,+44 736 5729 6772,2025-05-11,Active,102100,Kofi Mensah
+Jin,Wang,Human Resources,HR Coordinator,EMP-00070,Germany,Munich,jinwang@example.com,+49 9433 64532869,2021-07-16,Active,100500,Amara Okafor
+Omar,Nasser,IT / Infrastructure,IT Manager,EMP-00071,Australia,Adelaide,omarnasser@example.com,+61 8 9136 6496,2020-11-27,Active,98900,Omar Khan
+Sofia,Bianchi,Data Science,Data Analyst,EMP-00072,Germany,Hamburg,sofiabianchi@corporate.com,+49 9624 49264305,2018-09-18,On Leave,52500,Omar Sayed
+Milo,Schmidt,Design / UX,Graphic Designer,EMP-00073,Germany,Munich,mschmidt@corporate.com,+49 7863 84681810,2024-12-30,Active,51500,Zainab Ali
+Amina,Hassan,Quality Assurance,QA Manager,EMP-00074,Germany,Frankfurt,amina.hassan@company.com,+49 4785 93203626,2016-06-04,Active,101100,Fatou Diallo
+Diego,Martinez,Legal,Corporate Lawyer Head of,EMP-00075,India,Mumbai,diego.martinez@company.com,+91 70116 11218,2023-12-07,Active,15100,Nia Okafor
+Zain,Khan,Research & Development,Research Analyst,EMP-00076,Japan,Sapporo,zain.khan67@corporate.com,+81 15-4348-1273,2016-03-07,Active,41500,Fatou Diallo
+Amira,Al-Mansoori,Security,Security Manager,EMP-00077,USA,Los Angeles,amira.almansoori65@example.com,+1 (492) 721-1101,2019-01-11,Active,70000,Saanvi Sharma
+Noah,Johnson,Engineering,Lead Engineer,EMP-00078,Germany,Dusseldorf,noah.johnson@corporate.com,+49 7755 18526573,2023-04-09,Active,56400,Saanvi Sharma
+Isabella,Fernandez,Product Management,Senior Product Manager,EMP-00079,Germany,Berlin,isabella.fernandez33@company.com,+49 565 20439535,2023-01-11,Active,84400,Liam Johnson
+Liam,Nguyen,Sales,Sales Executive,EMP-00080,Canada,Winnipeg,liamnguyen@company.com,+1 (212) 380-4350,2020-07-22,Active,75400,Clara Schmidt
+Aisha,Mohammed,Marketing,Content Strategist,EMP-00081,Japan,Sapporo,amohammed@company.com,+81 88-4203-9772,2018-07-23,Active,66300,Freya Olsen
+Kofi,Mensah,Customer Success,Customer Experience Manager,EMP-00082,Australia,Brisbane,kofi.mensah@example.com,+61 7 9901 7463,2020-11-02,Active,105100,Saanvi Sharma
+Nia,Cummings,Operations,Operations Analyst,EMP-00083,UK,Glasgow,niacummings@example.com,+44 1105 7402 3197,2024-07-26,Active,68200,Saanvi Sharma
+Hiroshi,Sato,Finance,Financial Manager,EMP-00084,Canada,Calgary,hiroshisato@corporate.com,+1 (242) 439-3002,2019-01-26,Active,64800,Kofi Mensah
+Tanya,Peterson,Human Resources,HR Director,EMP-00085,France,Toulouse,tanya.peterson@company.com,+33 7 14 61 17 53,2025-07-24,Active,107100,Clara Schmidt
+Sanjay,Gupta,IT / Infrastructure,Network Engineer,EMP-00086,Germany,Berlin,sgupta@company.com,+49 8012 32993531,2021-10-20,Active,47000,Clara Schmidt
+Maya,Kumar,Data Science,Machine Learning Engineer,EMP-00087,Japan,Yokohama,mayakumar@company.com,+81 39-5992-4426,2021-01-08,Active,93500,Amara Okafor
+Anya,Baker,Design / UX,UI Designer,EMP-00088,India,Bangalore,anyabaker@company.com,+91 94855 57618,2024-07-24,Active,15800,Freya Olsen
+Dante,Hernandez,Quality Assurance,QA Tester,EMP-00089,UK,Bristol,dante.hernandez@example.com,+44 566 6911 3099,2021-03-01,On Leave,68100,Saanvi Sharma
+Fatou,Diallo,Legal,Compliance Officer,EMP-00090,India,Mumbai,fatou.diallo@example.com,+91 89807 78564,2020-08-12,Active,7700,Omar Khan
+Zara,El-Sayed,Research & Development,Product Researcher,EMP-00091,France,Strasbourg,zaraelsayed@example.com,+33 6 14 58 47 53,2022-09-06,Active,48300,Kofi Mensah
+Omar,Khan,Security,Cybersecurity Specialist Manager,EMP-00092,Germany,Hamburg,omar.khan@company.com,+49 7508 3584480,2019-08-22,Active,56600,Saanvi Sharma
+Luca,Rossi,Engineering,Junior Engineer,EMP-00093,Japan,Yokohama,luca.rossi@company.com,+81 11-4542-2390,2017-03-24,On Leave,39000,Diego Martinez
+Sofia,Martinez,Product Management,Product Manager,EMP-00094,UK,Liverpool,smartinez@example.com,+44 197 9189 7141,2017-04-13,Active,96700,Kiran Mehta
+Raj,Patel,Sales,Senior Sales Executive Team Lead,EMP-00095,Australia,Adelaide,raj.patel76@corporate.com,+61 8 3131 3066,2024-07-31,Active,120000,Saanvi Sharma
+Yara,Khalil,Marketing,Marketing Specialist,EMP-00096,France,Lyon,yara.khalil@corporate.com,+33 5 48 68 68 37,2025-05-11,Active,95100,Amara Okafor
+Omar,Sayed,Customer Success,Customer Success Manager,EMP-00097,Australia,Melbourne,omarsayed@corporate.com,+61 2 7814 9964,2019-11-16,Active,89400,Kiran Mehta
+Nia,Okafor,Operations,Operations Coordinator Director,EMP-00098,Canada,Ottawa,nia.okafor24@example.com,+1 (366) 893-2619,2017-11-23,Active,34400,Board of Directors
+Maya,Zhang,Finance,Financial Analyst,EMP-00099,UK,Bristol,mzhang@company.com,+44 707 6950 6909,2025-12-19,Active,88300,Omar Khan

@@ -54,20 +54,58 @@ def generate_product_catalog_with_llm(data_generator: Any, llm_cache: Dict[str, 
                 assigned = True
                 break
         if not assigned:
-            if any(kw in product_name.lower() for kw in ['shirt', 't-shirt', 'jeans', 'shoes', 'hoodie', 'shorts', 'pants', 'jacket', 'socks', 'hat', 'beanie', 'cap', 'blazer', 'cardigan', 'boots', 'sneakers']):
+            product_lower = product_name.lower()
+            # Apparel & Fashion (check first - very specific)
+            if any(kw in product_lower for kw in ['shirt', 't-shirt', 'jeans', 'shoes', 'hoodie', 'shorts', 'pants', 'jacket', 'socks', 'hat', 'beanie', 'cap', 'blazer', 'cardigan', 'boots', 'sneakers', 'dress', 'skirt', 'sweater', 'coat', 'bra', 'wear', 'cloth']):
                 categories_list.append('Apparel')
                 assigned_products.append(product_name)
-            elif any(kw in product_name.lower() for kw in ['motor oil', 'brake', 'spark plug', 'filter', 'battery', 'wiper', 'transmission', 'coolant', 'tire']):
+            # Automotive
+            elif any(kw in product_lower for kw in ['motor oil', 'brake', 'spark plug', 'auto filter', 'car battery', 'wiper', 'transmission', 'coolant', 'tire', 'car wash', 'engine']):
                 categories_list.append('Automotive')
                 assigned_products.append(product_name)
-            elif any(kw in product_name.lower() for kw in ['tent', 'backpack', 'sleeping bag', 'camping', 'hiking', 'outdoor', 'water bottle', 'stove', 'cooler', 'headlamp']):
+            # Outdoor Gear (check before home goods)
+            elif any(kw in product_lower for kw in ['tent', 'sleeping bag', 'camping', 'hiking', 'outdoor', 'stove', 'cooler', 'headlamp', 'compass', 'rope', 'footprint']):
                 categories_list.append('Outdoor Gear')
                 assigned_products.append(product_name)
-            elif any(kw in product_name.lower() for kw in ['lamp', 'cookware', 'pillow', 'coffee', 'vacuum', 'microwave', 'toaster', 'blender', 'knife', 'sheet', 'blanket', 'rug', 'furniture', 'chair']):
+            # Pet Supplies
+            elif any(kw in product_lower for kw in ['dog', 'cat', 'pet', 'puppy', 'kitten', 'animal', 'paw', 'collar', 'leash']):
+                categories_list.append('Pet Supplies')
+                assigned_products.append(product_name)
+            # Travel & Luggage (check before other categories)
+            elif any(kw in product_lower for kw in ['travel', 'luggage', 'suitcase', 'packing', 'carry-on', 'duffel']):
+                categories_list.append('Travel & Luggage')
+                assigned_products.append(product_name)
+            # Office & Furniture (check before home goods for desk/office items)
+            elif any(kw in product_lower for kw in ['office chair', 'desk chair', 'ergonomic chair', 'office desk', 'filing cabinet', 'desk', 'pen', 'pencil', 'paper', 'notebook', 'folder', 'stapler', 'marker', 'highlighter']):
+                categories_list.append('Office & Stationery')
+                assigned_products.append(product_name)
+            # Fitness & Sports (check mat vs mattress carefully)
+            elif any(kw in product_lower for kw in ['yoga mat', 'fitness mat', 'exercise mat', 'yoga', 'fitness', 'exercise', 'workout', 'gym', 'athletic', 'sport', 'training', 'dumbbell', 'weight', 'tracker watch']):
+                categories_list.append('Sports & Fitness')
+                assigned_products.append(product_name)
+            # Beauty & Personal Care
+            elif any(kw in product_lower for kw in ['beauty', 'cosmetic', 'makeup', 'facial cleanser', 'skin', 'hair straightener', 'hydrating', 'glow', 'cream', 'serum', 'lotion']):
+                categories_list.append('Beauty & Personal Care')
+                assigned_products.append(product_name)
+            # Home Appliances & Kitchen
+            elif any(kw in product_lower for kw in ['vacuum', 'microwave', 'toaster', 'purifier', 'fan', 'heater', 'thermostat', 'humidifier', 'dehumidifier', 'washer', 'dryer', 'refrigerator', 'fridge', 'freezer', 'dishwasher', 'coffee maker', 'brew', 'water filter', 'filtration', 'blender', 'mixer', 'kitchen', 'cookware', 'chef', 'cook', 'bake', 'meal prep', 'knife', 'cutting board', 'pan', 'pot', 'grill', 'fryer', 'cooktop', 'culinary']):
                 categories_list.append('Home Goods')
                 assigned_products.append(product_name)
-            else:
+            # Home & Garden & Furniture
+            elif any(kw in product_lower for kw in ['lamp', 'pillow', 'mattress', 'bedding', 'blanket', 'sheet', 'towel', 'rug', 'furniture', 'chair', 'garden', 'plant', 'soil', 'herb', 'seed', 'lights', 'solar', 'birdhouse', 'nest', 'aromatherapy', 'diffuser', 'candle']):
+                categories_list.append('Home Goods')
+                assigned_products.append(product_name)
+            # Baby & Kids
+            elif any(kw in product_lower for kw in ['baby', 'infant', 'toddler', 'child', 'kid', 'nursery', 'diaper', 'stroller', 'crib']):
+                categories_list.append('Baby & Kids')
+                assigned_products.append(product_name)
+            # Electronics
+            elif any(kw in product_lower for kw in ['smart', 'wireless', 'bluetooth', 'usb', 'charger', 'power bank', 'battery pack', 'camera', 'screen', 'display', 'speaker', 'headphone', 'earbuds', 'laptop', 'computer', 'phone', 'tablet', 'tv', 'monitor', 'remote', 'wifi', 'tech', 'digital', 'led', 'projector', 'keyboard', 'mouse', 'cable', 'adapter', 'router', 'hub', 'gaming', 'console', 'security camera']):
                 categories_list.append('Electronics')
+                assigned_products.append(product_name)
+            # Everything else defaults to General Merchandise
+            else:
+                categories_list.append('General Merchandise')
                 assigned_products.append(product_name)
     print(f"Assigned {len(set(categories_list))} unique categories")
     print(" Generating realistic prices by product type...")
@@ -391,20 +429,36 @@ def _guess_category_fallback(product_name: str) -> str:
         Category name
     """
     product_lower = product_name.lower()
-    if any(word in product_lower for word in ['vinyl', 'lp', 'album', 'cd']):
-        return "Music"
-    elif any(word in product_lower for word in ['iphone', 'laptop', 'tv', 'camera', 'watch', 'tablet', 'mouse', 'keyboard', 'headphone', 'speaker']):
+    # Pet Supplies
+    if any(word in product_lower for word in ['dog', 'cat', 'pet', 'puppy', 'kitten', 'animal']):
+        return "Pet Supplies"
+    # Beauty & Personal Care
+    elif any(word in product_lower for word in ['makeup', 'cosmetic', 'lipstick', 'foundation', 'mascara', 'lotion', 'cream', 'shampoo', 'beauty', 'facial', 'skin', 'hair', 'glow']):
+        return "Beauty & Personal Care"
+    # Sports & Fitness
+    elif any(word in product_lower for word in ['yoga', 'fitness', 'exercise', 'workout', 'gym', 'athletic', 'sport', 'training', 'dumbbell', 'weight']):
+        return "Sports & Fitness"
+    # Electronics
+    elif any(word in product_lower for word in ['iphone', 'laptop', 'tv', 'camera', 'watch', 'tablet', 'mouse', 'keyboard', 'headphone', 'speaker', 'smart', 'wireless', 'bluetooth', 'charger']):
         return "Electronics"
-    elif any(word in product_lower for word in ['jeans', 'shirt', 'shoe', 'jacket', 'brief', 'dress']):
+    # Apparel
+    elif any(word in product_lower for word in ['jeans', 'shirt', 'shoe', 'jacket', 'brief', 'dress', 'socks', 'hat', 'pants', 'sweater']):
         return "Apparel"
-    elif any(word in product_lower for word in ['makeup', 'cosmetic', 'lipstick', 'foundation', 'mascara', 'lotion', 'cream', 'shampoo']):
-        return "Beauty"
-    elif any(word in product_lower for word in ['coffee', 'cookware', 'kitchen', 'mixer', 'vacuum', 'plug', 'bulb']):
-        return "Home & Kitchen"
-    elif any(word in product_lower for word in ['running', 'fitness', 'gym', 'sport']):
-        return "Sports & Outdoors"
-    elif any(word in product_lower for word in ['motor oil', 'brake', 'tire', 'car', 'auto']):
+    # Home Goods
+    elif any(word in product_lower for word in ['coffee', 'cookware', 'kitchen', 'mixer', 'vacuum', 'plug', 'bulb', 'blanket', 'pillow', 'lamp', 'towel', 'rug', 'plant', 'garden', 'diffuser']):
+        return "Home Goods"
+    # Outdoor Gear
+    elif any(word in product_lower for word in ['camping', 'hiking', 'outdoor', 'tent', 'backpack', 'sleeping bag']):
+        return "Outdoor Gear"
+    # Automotive
+    elif any(word in product_lower for word in ['motor oil', 'brake', 'tire', 'car', 'auto', 'wiper', 'filter']):
         return "Automotive"
+    # Travel & Luggage
+    elif any(word in product_lower for word in ['travel', 'luggage', 'suitcase', 'packing', 'adapter', 'umbrella']):
+        return "Travel & Luggage"
+    # Office & Stationery
+    elif any(word in product_lower for word in ['office', 'desk', 'pen', 'paper', 'notebook', 'marker', 'art', 'paint']):
+        return "Office & Stationery"
     else:
         return "General Merchandise"
 

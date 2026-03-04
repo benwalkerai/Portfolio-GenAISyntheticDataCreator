@@ -43,8 +43,8 @@ Synthetic data generation app using **Local LLMs** (Ollama, llama.cpp, etc.) wit
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
-cd GenAISyntheticDataCreator
+git clone https://github.com/benwalkerai/Portfolio-GenAISyntheticDataCreator.git
+cd Portfolio-GenAISyntheticDataCreator
 ```
 
 ### 2. Configure Environment

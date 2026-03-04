@@ -55,7 +55,9 @@ def _validate_all_dates_in_past(df: pd.DataFrame) -> pd.DataFrame:
         DataFrame with validated dates
     """
     for c in df.columns:
-        if 'date' in c.lower() or (df[c].dtype == object and all(isinstance(v, str) for v in df[c].dropna().head(5))):
+        column_name = c.lower()
+        is_date_named_column = any(token in column_name for token in ['date', 'timestamp', 'time'])
+        if is_date_named_column:
             try:
                 formats_to_try = [
                     '%Y-%m-%d', '%Y/%m/%d', '%d-%m-%Y', '%m/%d/%Y',

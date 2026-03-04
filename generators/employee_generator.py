@@ -135,8 +135,9 @@ def generate_employee_data(data_generator: Any, llm_cache: Dict[str, str],
     print(f"   Final diversity: {first_count} unique first names, {last_count} unique last names")
     df = pd.DataFrame(employees)
     df['EmployeeID'] = [generate_id_with_encoding('EMP', i) for i in range(rows)]
-    countries = ['USA', 'UK', 'Canada', 'Australia', 'Germany', 'France']
-    df['Country'] = [random.choice(countries) for _ in range(rows)]
+    # Only use countries that are defined in LOCATIONS
+    available_countries = list(LOCATIONS.keys())
+    df['Country'] = [random.choice(available_countries) for _ in range(rows)]
     df['City'] = df['Country'].apply(lambda c: random.choice(LOCATIONS.get(c, LOCATIONS['USA'])['cities']))
     df['Email'] = df.apply(lambda x: generate_email(x['FirstName'], x['LastName']), axis=1)
     df['PhoneNumber'] = df['Country'].apply(lambda c: generate_phone(c))

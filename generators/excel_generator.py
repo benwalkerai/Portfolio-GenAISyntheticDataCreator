@@ -147,17 +147,50 @@ class ExcelGenerator:
         import random
         now = datetime.now()
         is_financial = 'financial' in subject.lower() and 'transaction' in subject.lower()
+        
+        # For financial transactions, create correlated merchant-category-type data
+        financial_transaction_data = {}
         if is_financial:
-            merchant_names = [
-                "Amazon", "Walmart", "Target", "Costco", "Best Buy",
-                "Starbucks", "McDonald's", "Chipotle", "Whole Foods", "Trader Joe's",
-                "Shell", "Chevron", "Exxon", "BP Gas Station", "7-Eleven",
-                "CVS Pharmacy", "Walgreens", "Rite Aid", "Home Depot", "Lowe's",
-                "Netflix", "Spotify", "Apple iTunes", "Google Play", "Amazon Prime",
-                "Uber", "Lyft", "Delta Airlines", "United Airlines", "Marriott Hotels",
-                "AT&T", "Verizon", "Comcast", "Electric Company", "Water Utility",
-                "Bank Transfer", "Direct Deposit", "Payroll", "Insurance Payment", "Mortgage Payment"
-            ]
+            from .constants import FINANCIAL_MERCHANTS
+            
+            # Generate all financial transaction records with proper correlations
+            all_categories = list(FINANCIAL_MERCHANTS.keys())
+            category_weights = [2, 2, 3, 2, 2, 3, 1, 2, 1, 1, 1, 1]  # Adjust frequency of each category
+            
+            financial_transaction_data['categories'] = random.choices(
+                all_categories, 
+                weights=category_weights[:len(all_categories)],
+                k=rows
+            )
+            
+            # Generate merchants based on their categories
+            financial_transaction_data['merchants'] = []
+            financial_transaction_data['transaction_types'] = []
+            financial_transaction_data['amounts'] = []
+            
+            for category in financial_transaction_data['categories']:
+                category_data = FINANCIAL_MERCHANTS[category]
+                merchant = random.choice(category_data['merchants'])
+                txn_type = random.choice(category_data['transaction_types'])
+                min_amt, max_amt = category_data['amount_range']
+                
+                # Generate amount with realistic distribution
+                if category == 'Income':
+                    # Salaries tend to be consistent amounts
+                    amount = round(random.uniform(min_amt, max_amt), 2)
+                elif category_data.get('recurring', False):
+                    # Recurring payments have less variation
+                    base_amount = random.uniform(min_amt, max_amt)
+                    amount = round(base_amount + random.uniform(-base_amount*0.05, base_amount*0.05), 2)
+                else:
+                    # One-time purchases have more variation
+                    amount = round(random.uniform(min_amt, max_amt), 2)
+                
+                financial_transaction_data['merchants'].append(merchant)
+                financial_transaction_data['transaction_types'].append(txn_type)
+                financial_transaction_data['amounts'].append(amount)
+            
+        
         name_cols_exist = any('name' in c.get('name', '').lower() for c in schema)
         full_names = [value_generators.generate_person_name() for _ in range(rows)] if name_cols_exist else None
         product_names_pool = []
@@ -204,17 +237,59 @@ class ExcelGenerator:
             elif col_type in ('text', 'category'):
                 if 'product' in col_name.lower() and 'name' in col_name.lower() and product_names_pool:
                     col_data = random.choices(product_names_pool, k=rows)
-                elif 'category' in col_name.lower() and product_categories_map and 'product' not in col_name.lower():
-                    product_col_name = next((c.get('name') for c in schema if 'product' in c.get('name', '').lower() and 'name' in c.get('name', '').lower()), None)
-                    if product_col_name and product_col_name in dataset:
-                        col_data = [product_categories_map.get(product, random.choice(list(product_categories_map.values()) or examples or ['Unknown'])) 
-                                    for product in dataset[product_col_name]]
+                elif 'category' in col_name.lower() and 'product' not in col_name.lower():
+                    # Check if this is a financial transaction category FIRST
+                    if is_financial and financial_transaction_data:
+                        col_data = financial_transaction_data['categories']
+                    elif product_categories_map:
+                        product_col_name = next((c.get('name') for c in schema if 'product' in c.get('name', '').lower() and 'name' in c.get('name', '').lower()), None)
+                        if product_col_name and product_col_name in dataset:
+                            col_data = [product_categories_map.get(product, random.choice(list(product_categories_map.values()) or examples or ['Unknown'])) 
+                                        for product in dataset[product_col_name]]
+                        else:
+                            col_data = random.choices(list(product_categories_map.values()) if product_categories_map else examples, k=rows)
+                    elif examples:
+                        col_data = random.choices(examples, k=rows)
                     else:
-                        col_data = random.choices(list(product_categories_map.values()) if product_categories_map else examples, k=rows)
+                        col_data = [f"{col_name}_{i+1}" for i in range(rows)]
                 elif 'customer' in col_name.lower() and 'name' in col_name.lower() and customer_names_pool:
                     col_data = random.choices(customer_names_pool, k=rows)
-                elif is_financial and 'merchant' in col_name.lower():
-                    col_data = random.choices(merchant_names, k=rows)
+                elif is_financial and 'merchant' in col_name.lower() and 'merchants' in financial_transaction_data:
+                    col_data = financial_transaction_data['merchants']
+                elif is_financial and 'transaction' in col_name.lower() and 'type' in col_name.lower() and 'transaction_types' in financial_transaction_data:
+                    col_data = financial_transaction_data['transaction_types']
+                elif is_financial and 'description' in col_name.lower() and 'categories' in financial_transaction_data:
+                    # Generate realistic descriptions based on merchant/category
+                    col_data = []
+                    merchant_col = dataset.get('MerchantName', [''] * rows)
+                    category_col = financial_transaction_data.get('categories', [''] * rows)
+                    for merchant, category in zip(merchant_col, category_col):
+                        if category == 'Housing':
+                            desc = f"Monthly {category.lower()} payment"
+                        elif category == 'Utilities':
+                            desc = f"{category} bill payment"
+                        elif category == 'Income':
+                            desc = f"Payroll direct deposit"
+                        elif category == 'Insurance':
+                            desc = f"Monthly insurance premium"
+                        elif category == 'Transfers':
+                            desc = f"Account transfer"
+                        else:
+                            desc = f"Purchase at {merchant}" if merchant else f"{category} purchase"
+                        col_data.append(desc)
+                elif is_financial and 'status' in col_name.lower():
+                    # Most transactions should be Posted, with some Pending
+                    col_data = random.choices(['Posted', 'Pending', 'Cleared'], weights=[0.7, 0.2, 0.1], k=rows)
+                elif is_financial and 'note' in col_name.lower() and 'categories' in financial_transaction_data:
+                    # Add notes for recurring transactions
+                    col_data = []
+                    from .constants import FINANCIAL_MERCHANTS
+                    category_col = financial_transaction_data.get('categories', [''] * rows)
+                    for category in category_col:
+                        if category in FINANCIAL_MERCHANTS and FINANCIAL_MERCHANTS[category].get('recurring', False):
+                            col_data.append(random.choice(['Recurring monthly', 'Auto-payment', '']))
+                        else:
+                            col_data.append('')
                 elif 'sales' in col_name.lower() and 'rep' in col_name.lower():
                     reps = [value_generators.generate_person_name() for _ in range(random.randint(5, 10))]
                     col_data = random.choices(reps, k=rows)
@@ -244,8 +319,25 @@ class ExcelGenerator:
                     col_data = [random.randint(1, 1000) for _ in range(rows)]
             elif col_type in ('float', 'money', 'price', 'currency'):
                 if any(k in col_name.lower() for k in ['price', 'cost', 'amount', 'sale', 'total', 'balance']):
-                    if is_financial and 'amount' in col_name.lower():
-                        col_data = [round(random.paretovariate(1.5) * 50, 2) for _ in range(rows)]
+                    if is_financial and 'amount' in col_name.lower() and 'amounts' in financial_transaction_data:
+                        # Use the pre-generated correlated amounts for financial transactions
+                        col_data = financial_transaction_data['amounts']
+                    elif is_financial and 'balance' in col_name.lower():
+                        # Generate running balance if amount column exists
+                        if 'Amount' in dataset:
+                            starting_balance = round(random.uniform(5000, 50000), 2)
+                            col_data = []
+                            current_balance = starting_balance
+                            for i, amount in enumerate(dataset['Amount']):
+                                # Adjust balance based on transaction type
+                                txn_type = dataset.get('TransactionType', [None]*rows)[i] if 'TransactionType' in dataset else None
+                                if txn_type in ['Deposit', 'Credit', 'Income']:
+                                    current_balance += float(amount)
+                                else:
+                                    current_balance -= float(amount)
+                                col_data.append(round(current_balance, 2))
+                        else:
+                            col_data = [round(random.uniform(1000.0, 50000.0), 2) for _ in range(rows)]
                     else:
                         col_data = [round(random.uniform(10.0, 1000.0), 2) for _ in range(rows)]
                 else:

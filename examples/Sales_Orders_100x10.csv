@@ -1,0 +1,101 @@
+OrderID,OrderDate,CustomerID,CustomerName,ProductSKU,ProductName,Category,Quantity,UnitPrice,TotalSale
+ORD-00000,2023-08-06,CUS-00000,Nexus Manufacturing Corp,PRO-00000,OrderTracker Elite,Electronics,15,161.75,2426.25
+ORD-00001,2021-12-30,CUS-00001,Noble Manufacturing Corp,PRO-00001,SalesMatrix Suite,Electronics,79,921.81,72822.99
+ORD-00002,2025-03-16,CUS-00002,Synergy Technologies Inc,PRO-00002,SalesCommand Center,Electronics,100,94.74,9474.0
+ORD-00003,2023-02-25,CUS-00003,Stratosphere Manufacturing Group,PRO-00003,SalesCatalyst 2023,Pet Supplies,65,309.1,20091.5
+ORD-00004,2023-09-08,CUS-00004,Integrity Retail Group,PRO-00004,SalesBridge Connect,Electronics,91,666.92,60689.72
+ORD-00005,2021-12-29,CUS-00005,Dynamic Finance Solutions,PRO-00005,SalesNavigator 4.5,General Merchandise,83,807.49,67021.67
+ORD-00006,2021-12-09,CUS-00006,Epic Sales Orders Inc,PRO-00006,SalesTracker Pro,General Merchandise,31,171.76,5324.56
+ORD-00007,2025-02-20,CUS-00007,Legacy Healthcare Corp,PRO-00007,SalesBridge Connect,Electronics,45,718.34,32325.3
+ORD-00008,2024-03-05,CUS-00008,Crestview Industries Inc,PRO-00008,SalesCentral 2023,General Merchandise,39,911.42,35545.38
+ORD-00009,2021-10-01,CUS-00009,Nexus Manufacturing Corp,PRO-00009,OrderSphere Advanced,General Merchandise,56,216.58,12128.48
+ORD-00010,2026-03-02,CUS-00010,Proactive Technologies LLC,PRO-00010,QuickQuote Pro,General Merchandise,79,365.9,28906.1
+ORD-00011,2023-06-02,CUS-00011,Unity Retail Industries,PRO-00011,SalesVision Elite,General Merchandise,57,926.99,52838.43
+ORD-00012,2024-10-30,CUS-00012,Atlas Finance Systems,PRO-00012,OrderWizard Pro,General Merchandise,54,810.59,43771.86
+ORD-00013,2025-12-05,CUS-00013,Optimum Sales Orders Inc,PRO-00013,SalesVision Pro,Electronics,51,924.1,47129.1
+ORD-00014,2025-07-16,CUS-00014,Fusion Finance Group,PRO-00014,SalesDrive Manager,General Merchandise,77,57.69,4442.13
+ORD-00015,2026-02-09,CUS-00015,Elemental Technologies LLC,PRO-00015,QuickSales Navigator,General Merchandise,33,184.89,6101.37
+ORD-00016,2022-08-19,CUS-00016,Integrity Retail Group,PRO-00016,SmartOrder Hub,Electronics,12,605.06,7260.72
+ORD-00017,2025-02-19,CUS-00017,Dynamic Finance Solutions,PRO-00017,QuickSales Organizer,General Merchandise,89,672.61,59862.29
+ORD-00018,2022-10-10,CUS-00018,Quantum Finance Industries,PRO-00018,OrderPilot Elite,Electronics,43,79.18,3404.74
+ORD-00019,2024-07-25,CUS-00019,Stratosphere Manufacturing Group,PRO-00019,OrderSync Dynamics,Electronics,4,228.63,914.52
+ORD-00020,2023-10-04,CUS-00020,Catalyst Healthcare Corp,PRO-00020,SalesCommand 2023,Electronics,19,109.24,2075.56
+ORD-00021,2024-09-03,CUS-00021,Innovative Manufacturing Group,PRO-00021,OrderManager 2023,Electronics,88,602.77,53043.76
+ORD-00022,2021-08-10,CUS-00022,Crestview Industries Inc,PRO-00022,InstantOrder Pro,Electronics,17,226.71,3854.07
+ORD-00023,2021-10-13,CUS-00023,Unity Retail Industries,PRO-00023,OrderSync Dynamics,Electronics,33,85.46,2820.18
+ORD-00024,2024-02-24,CUS-00024,Proactive Technologies LLC,PRO-00024,SalesBridge Platform,Electronics,86,136.93,11775.98
+ORD-00025,2022-02-28,CUS-00025,Evergreen Technologies LLC,PRO-00025,OrderCraft Pro,Electronics,59,758.05,44724.95
+ORD-00026,2024-02-29,CUS-00026,Unity Retail Industries,PRO-00026,SalesNavigator Suite,General Merchandise,11,650.63,7156.93
+ORD-00027,2021-08-06,CUS-00027,Elemental Technologies LLC,PRO-00027,SalesLink Advanced,Electronics,44,159.17,7003.48
+ORD-00028,2021-09-11,CUS-00028,Pinnacle Solutions Inc,PRO-00028,OrderVision Plus,General Merchandise,28,671.71,18807.88
+ORD-00029,2021-10-17,CUS-00029,Horizon Logistics Solutions,PRO-00029,EasyOrder Suite,General Merchandise,82,313.82,25733.24
+ORD-00030,2021-04-22,CUS-00030,Stratosphere Manufacturing Group,PRO-00030,OrderStream Premium,General Merchandise,61,42.06,2565.66
+ORD-00031,2024-07-30,CUS-00031,Elevate Supply Chain Solutions,PRO-00031,OrderSphere Elite,General Merchandise,67,33.0,2211.0
+ORD-00032,2021-08-09,CUS-00032,Streamline Logistics Industries,PRO-00032,OrderFlow Pro,General Merchandise,78,533.22,41591.16
+ORD-00033,2021-07-04,CUS-00033,Vanguard Retail Systems,PRO-00033,OrderPro 2023,General Merchandise,64,899.8,57587.2
+ORD-00034,2022-07-20,CUS-00034,Elemental Technologies LLC,PRO-00034,SalesStream 2023,Electronics,99,98.42,9743.58
+ORD-00035,2025-07-15,CUS-00035,Precision Healthcare Systems,PRO-00035,QuickInvoice Pro,General Merchandise,53,60.67,3215.51
+ORD-00036,2023-09-16,CUS-00036,Atlas Finance Systems,PRO-00036,OrderNavigator Pro,General Merchandise,56,233.91,13098.96
+ORD-00037,2025-11-23,CUS-00037,Elevate Supply Chain Solutions,PRO-00037,SalesConnect Advanced,Electronics,87,983.91,85600.17
+ORD-00038,2025-08-17,CUS-00038,Integrity Retail Group,PRO-00038,QuickOrder Manager,General Merchandise,18,885.02,15930.36
+ORD-00039,2022-08-10,CUS-00039,Precision Healthcare Systems,PRO-00039,InvoiceGenie 2.0,Electronics,79,715.18,56499.22
+ORD-00040,2021-04-15,CUS-00040,Crestview Industries Inc,PRO-00040,SalesPulse 2023,General Merchandise,19,871.48,16558.12
+ORD-00041,2023-11-23,CUS-00041,Summit Retail Group,PRO-00041,OrderFlow Dynamics,Electronics,26,697.16,18126.16
+ORD-00042,2025-02-27,CUS-00042,Fusion Finance Group,PRO-00042,OrderPro 2023,General Merchandise,47,707.47,33251.09
+ORD-00043,2025-02-26,CUS-00043,Insight Logistics Group,PRO-00043,SalesLink 2024,Electronics,17,243.8,4144.6
+ORD-00044,2023-11-06,CUS-00044,Optimum Sales Orders Inc,PRO-00044,OrderSync Max,Electronics,67,120.02,8041.34
+ORD-00045,2024-05-10,CUS-00045,Summit Retail Group,PRO-00045,QuickSales Organizer,General Merchandise,44,963.77,42405.88
+ORD-00046,2023-07-29,CUS-00046,Legacy Healthcare Corp,PRO-00046,SalesStream Navigator,General Merchandise,100,951.06,95106.0
+ORD-00047,2021-11-20,CUS-00047,Catalyst Healthcare Corp,PRO-00047,SalesInsight 2023,General Merchandise,82,133.29,10929.78
+ORD-00048,2025-02-11,CUS-00048,Ascend Manufacturing Solutions,PRO-00048,SalesFusion Max,General Merchandise,68,695.11,47267.48
+ORD-00049,2023-06-01,CUS-00049,Ascend Manufacturing Solutions,PRO-00049,SalesOptimizer 2023,Electronics,23,506.1,11640.3
+ORD-00050,2023-06-21,CUS-00050,Vertex Healthcare Solutions,PRO-00050,OrderSync Pro Plus,General Merchandise,55,207.76,11426.8
+ORD-00051,2025-10-16,CUS-00051,Synergy Technologies Inc,PRO-00051,SalesFlow 2023,General Merchandise,80,352.01,28160.8
+ORD-00052,2022-08-31,CUS-00052,Ascend Manufacturing Solutions,PRO-00052,SalesMatrix Pro Plus,General Merchandise,83,723.69,60066.27
+ORD-00053,2025-03-28,CUS-00053,Crestview Industries Inc,PRO-00053,SalesBridge Connect,Electronics,8,681.24,5449.92
+ORD-00054,2023-07-29,CUS-00054,Insight Logistics Group,PRO-00054,SalesLink 2023,Electronics,39,272.08,10611.12
+ORD-00055,2025-11-09,CUS-00055,Ascend Manufacturing Solutions,PRO-00055,SalesSphere 2024,General Merchandise,95,401.89,38179.55
+ORD-00056,2021-08-11,CUS-00056,Vanguard Retail Systems,PRO-00056,EasyOrder Suite,General Merchandise,70,192.24,13456.8
+ORD-00057,2022-10-05,CUS-00057,Cohesion Logistics Solutions,PRO-00057,OrderMaster 2023,Electronics,16,29.35,469.6
+ORD-00058,2024-06-24,CUS-00058,Proactive Technologies LLC,PRO-00058,OrderSync Elite,Electronics,95,964.82,91657.9
+ORD-00059,2023-03-12,CUS-00059,Optimum Sales Orders Inc,PRO-00059,OrderStream Premium,General Merchandise,37,559.22,20691.14
+ORD-00060,2024-11-24,CUS-00060,Vertex Logistics LLC,PRO-00060,OrderCraft Elite,General Merchandise,32,978.2,31302.4
+ORD-00061,2023-02-10,CUS-00061,Atlas Finance Systems,PRO-00061,SalesPulse Navigator,General Merchandise,52,355.33,18477.16
+ORD-00062,2026-03-01,CUS-00062,Elemental Technologies LLC,PRO-00062,SalesInsight Pro,Electronics,4,33.85,135.4
+ORD-00063,2022-04-09,CUS-00063,Summit Retail Group,PRO-00063,OrderCraft Pro,Electronics,78,482.48,37633.44
+ORD-00064,2024-05-15,CUS-00064,Synergy Technologies Inc,PRO-00064,SalesMaster Elite 2023,General Merchandise,81,780.92,63254.52
+ORD-00065,2022-03-28,CUS-00065,Atlas Finance Systems,PRO-00065,SalesTracker Elite,General Merchandise,27,285.85,7717.95
+ORD-00066,2023-09-13,CUS-00066,Dynamic Finance Solutions,PRO-00066,SalesVision Pro,Electronics,97,760.38,73756.86
+ORD-00067,2023-01-14,CUS-00067,Optimum Sales Orders Inc,PRO-00067,OrderStream Pro,Electronics,2,800.31,1600.62
+ORD-00068,2024-01-08,CUS-00068,Legacy Healthcare Corp,PRO-00068,RapidInvoice Pro,General Merchandise,35,531.66,18608.1
+ORD-00069,2023-11-18,CUS-00069,Optimum Sales Orders Inc,PRO-00069,OrderFusion 2023,Electronics,22,396.61,8725.42
+ORD-00070,2025-08-08,CUS-00070,Catalyst Healthcare Corp,PRO-00070,OrderSphere Advanced,General Merchandise,95,513.49,48781.55
+ORD-00071,2021-11-19,CUS-00071,Vanguard Retail Systems,PRO-00071,OrderFusion 2023,Electronics,35,914.57,32009.95
+ORD-00072,2024-05-21,CUS-00072,Innovative Manufacturing Group,PRO-00072,RapidSales Tracker,Electronics,50,805.58,40279.0
+ORD-00073,2022-04-13,CUS-00073,Synergy Technologies Inc,PRO-00073,OrderStream Flex,Electronics,8,560.17,4481.36
+ORD-00074,2024-09-16,CUS-00074,Pinnacle Solutions Inc,PRO-00074,SalesMatrix Suite,Electronics,72,986.01,70992.72
+ORD-00075,2022-02-22,CUS-00075,Unity Retail Industries,PRO-00075,InvoiceGenie 2.0,Electronics,18,882.29,15881.22
+ORD-00076,2022-03-31,CUS-00076,Cohesion Logistics Solutions,PRO-00076,QuickSales Organizer,General Merchandise,53,855.96,45365.88
+ORD-00077,2022-02-11,CUS-00077,Nexus Manufacturing Corp,PRO-00077,OrderCraft Pro,Electronics,18,79.69,1434.42
+ORD-00078,2023-06-27,CUS-00078,Legacy Healthcare Corp,PRO-00078,OrderTracker 2023,General Merchandise,83,585.52,48598.16
+ORD-00079,2021-04-09,CUS-00079,Nexus Manufacturing Corp,PRO-00079,OrderPilot 2024,General Merchandise,80,22.28,1782.4
+ORD-00080,2021-08-26,CUS-00080,Fusion Finance Group,PRO-00080,SalesOptimizer Max,General Merchandise,83,45.21,3752.43
+ORD-00081,2023-02-07,CUS-00081,Catalyst Healthcare Corp,PRO-00081,OrderFlow Pro,General Merchandise,88,435.08,38287.04
+ORD-00082,2024-07-12,CUS-00082,Vertex Healthcare Solutions,PRO-00082,OrderSync Elite,Electronics,56,906.5,50764.0
+ORD-00083,2025-10-04,CUS-00083,Titan Sales Orders LLC,PRO-00083,OrderSync Elite,Electronics,81,13.23,1071.63
+ORD-00084,2023-12-12,CUS-00084,Horizon Logistics Solutions,PRO-00084,QuickQuote Pro,General Merchandise,82,191.22,15680.04
+ORD-00085,2023-11-21,CUS-00085,Pinnacle Solutions Inc,PRO-00085,OrderNavigator Pro,General Merchandise,94,10.48,985.12
+ORD-00086,2024-02-02,CUS-00086,Quantum Finance Industries,PRO-00086,SalesVision Pro,Electronics,16,614.91,9838.56
+ORD-00087,2025-01-30,CUS-00087,Cohesion Logistics Solutions,PRO-00087,SalesFusion Max,General Merchandise,72,394.37,28394.64
+ORD-00088,2021-07-18,CUS-00088,Noble Manufacturing Corp,PRO-00088,SalesFlow Manager,General Merchandise,44,545.78,24014.32
+ORD-00089,2023-10-02,CUS-00089,Synergy Technologies Inc,PRO-00089,OrderMaster 360,Electronics,37,616.01,22792.37
+ORD-00090,2025-04-25,CUS-00090,Elevate Supply Chain Solutions,PRO-00090,OrderFlow Pro,General Merchandise,67,276.59,18531.53
+ORD-00091,2021-07-09,CUS-00091,Optimum Sales Orders Inc,PRO-00091,SalesConnect Advanced,Electronics,62,178.06,11039.72
+ORD-00092,2021-07-18,CUS-00092,Apex Healthcare Systems,PRO-00092,SalesCentral 2023,General Merchandise,77,983.27,75711.79
+ORD-00093,2021-11-04,CUS-00093,Integrity Retail Group,PRO-00093,OrderVision Pro,General Merchandise,11,961.37,10575.07
+ORD-00094,2023-07-02,CUS-00094,Summit Retail Group,PRO-00094,OrderTracker Elite,Electronics,6,127.34,764.04
+ORD-00095,2021-03-29,CUS-00095,Fusion Finance Group,PRO-00095,SalesFlow 2023,General Merchandise,93,911.12,84734.16
+ORD-00096,2022-07-10,CUS-00096,Integrity Retail Group,PRO-00096,OrderPilot 2.0,Electronics,28,929.27,26019.56
+ORD-00097,2023-11-13,CUS-00097,Titan Sales Orders LLC,PRO-00097,OrderCraft Max,Electronics,13,342.6,4453.8
+ORD-00098,2023-05-20,CUS-00098,Summit Retail Group,PRO-00098,SalesFlow Manager,General Merchandise,99,659.44,65284.56
+ORD-00099,2026-01-10,CUS-00099,Stratosphere Manufacturing Group,PRO-00099,OrderTracker Pro,General Merchandise,61,820.47,50048.67

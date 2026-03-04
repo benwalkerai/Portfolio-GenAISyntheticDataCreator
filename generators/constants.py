@@ -136,6 +136,15 @@ LOCATIONS = {
         'salary_multiplier': 0.35,
         'phone_format': 'IN',
         'decimal_separator': '.'
+    },
+    'France': {
+        'states': ['Île-de-France', 'Provence', 'Rhône-Alpes', 'Brittany'],
+        'cities': ['Paris', 'Marseille', 'Lyon', 'Toulouse', 'Nice', 'Nantes', 'Strasbourg'],
+        'currency': 'EUR',
+        'currency_symbol': '€',
+        'salary_multiplier': 0.92,
+        'phone_format': 'FR',
+        'decimal_separator': ','
     }
 }
 
@@ -380,4 +389,131 @@ KNOWN_CITIES = {
     'Japan': ['Tokyo', 'Osaka', 'Yokohama', 'Nagoya', 'Sapporo', 'Kobe'],
     'Germany': ['Berlin', 'Munich', 'Frankfurt', 'Hamburg', 'Cologne', 'Stuttgart'],
     'India': ['Mumbai', 'Delhi', 'Bangalore', 'Hyderabad', 'Chennai', 'Kolkata']
+}
+
+# Financial Transaction Merchant-Category Mappings
+# Each category maps to appropriate merchants and transaction characteristics
+FINANCIAL_MERCHANTS = {
+    'Housing': {
+        'merchants': [
+            'ABC Mortgage Company', 'First National Mortgage', 'Home Loans Inc',
+            'Apartment Management Co', 'Property Rentals LLC', 'City Housing Authority',
+            'Metropolitan Property Management', 'Riverside Apartments'
+        ],
+        'transaction_types': ['Payment', 'ACH'],
+        'recurring': True,  # These are typically recurring monthly payments
+        'amount_range': (800, 3500)
+    },
+    'Utilities': {
+        'merchants': [
+            'Electric Company', 'Power & Light', 'City Electric Utility',
+            'Water Utility', 'City Water & Sewer', 'Municipal Water District',
+            'Natural Gas Company', 'Gas & Electric', 'Waste Management Services',
+            'Internet Services Inc', 'Comcast', 'AT&T', 'Verizon Wireless',
+            'T-Mobile', 'Spectrum Internet'
+        ],
+        'transaction_types': ['Payment', 'ACH'],
+        'recurring': True,
+        'amount_range': (45, 250)
+    },
+    'Groceries': {
+        'merchants': [
+            'Whole Foods Market', "Trader Joe's", 'Safeway', 'Kroger', 'Publix',
+            'Target Grocery', 'Walmart Supercenter', 'Costco Wholesale', 'Aldi',
+            "Sam's Club", 'Fresh Market', 'Sprouts Farmers Market'
+        ],
+        'transaction_types': ['Debit', 'Credit'],
+        'recurring': False,
+        'amount_range': (30, 250)
+    },
+    'Restaurants': {
+        'merchants': [
+            'Starbucks', "McDonald's", 'Chipotle Mexican Grill', 'Panera Bread',
+            'Subway', 'Olive Garden', 'Chick-fil-A', "Domino's Pizza", 'Taco Bell',
+            'Five Guys', "Wendy's", 'In-N-Out Burger', 'The Cheesecake Factory',
+            'Local Bistro', 'Downtown Cafe'
+        ],
+        'transaction_types': ['Debit', 'Credit'],
+        'recurring': False,
+        'amount_range': (8, 85)
+    },
+    'Transportation': {
+        'merchants': [
+            'Shell Gas Station', 'Chevron', 'Exxon', 'BP', '7-Eleven Fuel',
+            'Uber', 'Lyft', 'City Transit Authority', 'Metro Rail Pass',
+            'Parking Garage Downtown', 'Airport Parking'
+        ],
+        'transaction_types': ['Debit', 'Credit'],
+        'recurring': False,
+        'amount_range': (5, 120)
+    },
+    'Shopping': {
+        'merchants': [
+            'Amazon.com', 'Target', 'Walmart', 'Best Buy', 'Home Depot', "Lowe's",
+            "Macy's", 'Nordstrom', "Kohl's", 'TJ Maxx', 'Old Navy', 'Nike Store',
+            'Apple Store', 'REI', 'IKEA'
+        ],
+        'transaction_types': ['Debit', 'Credit'],
+        'recurring': False,
+        'amount_range': (15, 500)
+    },
+    'Healthcare': {
+        'merchants': [
+            'CVS Pharmacy', 'Walgreens', 'Rite Aid', 'City Medical Center',
+            'Dental Care Associates', 'Vision Center', 'HealthCare Insurance Co',
+            'Medical Group Practice', 'Urgent Care Clinic'
+        ],
+        'transaction_types': ['Payment', 'Debit', 'Credit'],
+        'recurring': False,
+        'amount_range': (25, 450)
+    },
+    'Entertainment': {
+        'merchants': [
+            'Netflix', 'Spotify', 'Disney+', 'Hulu', 'HBO Max', 'Apple iTunes',
+            'Google Play', 'Amazon Prime Video', 'AMC Theaters', 'Regal Cinemas',
+            'Live Nation', 'Ticketmaster', 'PlayStation Network', 'Xbox Live'
+        ],
+        'transaction_types': ['Credit'],
+        'recurring': True,  # Many entertainment subscriptions are recurring
+        'amount_range': (9.99, 120)
+    },
+    'Travel': {
+        'merchants': [
+            'Delta Airlines', 'United Airlines', 'American Airlines', 'Southwest Airlines',
+            'Marriott Hotels', 'Hilton Hotels', 'Hyatt Hotels', 'Airbnb',
+            'Expedia', 'Booking.com', 'Hertz Rent-A-Car', 'Enterprise Car Rental'
+        ],
+        'transaction_types': ['Credit'],
+        'recurring': False,
+        'amount_range': (150, 1500)
+    },
+    'Insurance': {
+        'merchants': [
+            'State Farm Insurance', 'Geico', 'Progressive Insurance', 'Allstate',
+            'Liberty Mutual', 'Health Insurance Co', 'Life Insurance Group'
+        ],
+        'transaction_types': ['Payment', 'ACH'],
+        'recurring': True,
+        'amount_range': (120, 650)
+    },
+    'Income': {
+        'merchants': [
+            'Employer Direct Deposit', 'Payroll Services Inc', 'Salary Payment',
+            'Freelance Client Payment', 'Contract Work Payment', 'Bonus Payment',
+            'Investment Dividend', 'Interest Payment'
+        ],
+        'transaction_types': ['Deposit', 'Transfer'],
+        'recurring': True,
+        'amount_range': (1500, 8000)
+    },
+    'Transfers': {
+        'merchants': [
+            'Bank Transfer', 'Internal Transfer', 'Savings Transfer',
+            'Investment Account Transfer', 'Zelle Transfer', 'Venmo',
+            'PayPal', 'Cash App'
+        ],
+        'transaction_types': ['Transfer'],
+        'recurring': False,
+        'amount_range': (50, 2000)
+    }
 }

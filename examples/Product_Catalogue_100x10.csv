@@ -1,0 +1,101 @@
+ProductID,ProductName,SKU,Category,Price,Cost,StockQuantity,ReorderLevel,Supplier,DateAdded
+PRO-000000,ToughGuard Heavy-Duty Work Gloves,SKU-000000,General Merchandise,96.41,80.97,107,25,Apex Works,2025-04-30
+PRO-000001,ArtisanBrew Specialty Tea Sampler,SKU-000001,Home Goods,175.95,141.65,32,6,Jones Systems,2025-05-02
+PRO-000002,FlexiFold Collapsible Storage Bins,SKU-000002,General Merchandise,66.11,54.66,23,5,Meridian Johnson Inc.,2022-11-25
+PRO-000003,Nature's Best Organic Green Tea,SKU-000003,General Merchandise,103.84,78.92,101,15,Pinnacle Miller Inc.,2023-10-20
+PRO-000004,SwiftCharge Wireless Phone Charger,SKU-000004,Electronics,180.47,144.71,39,10,Smith Services,2022-01-15
+PRO-000005,PetSafe Wireless Pet Fence System,SKU-000005,Pet Supplies,107.84,76.45,21,5,United Services,2025-05-17
+PRO-000006,PureAir HEPA Air Purifier 300,SKU-000006,Home Goods,153.25,115.98,87,15,Jones Systems,2024-12-26
+PRO-000007,PetComfort Orthopedic Dog Bed,SKU-000007,Pet Supplies,86.33,72.34,133,39,Pinnacle Systems,2024-02-28
+PRO-000008,UltraClean Robot Vacuum Cleaner,SKU-000008,Home Goods,68.26,56.45,89,13,Quantum Solutions,2024-03-02
+PRO-000009,EcoFriendly Bamboo Toothbrush Set,SKU-000009,General Merchandise,147.24,114.4,52,10,Summit Solutions,2022-10-09
+PRO-000010,QuickChill Portable Mini Fridge,SKU-000010,Home Goods,132.71,98.62,106,24,Meridian Johnson Inc.,2022-10-26
+PRO-000011,PowerCharge Wireless Phone Charger,SKU-000011,Electronics,165.59,119.24,29,5,Quantum Solutions,2022-07-10
+PRO-000012,GourmetBite Artisan Cheese Board,SKU-000012,General Merchandise,123.17,101.21,149,41,Pacific Services,2025-09-22
+PRO-000013,ChillMate Insulated Water Bottle,SKU-000013,General Merchandise,82.14,63.28,60,10,United Services,2021-08-15
+PRO-000014,EcoWrap Biodegradable Food Wraps,SKU-000014,General Merchandise,71.49,55.03,93,23,Brown Services,2025-01-03
+PRO-000015,Gamer's Paradise Gaming Chair,SKU-000015,Home Goods,79.32,60.73,89,21,Apex Works,2022-05-01
+PRO-000016,ComfortSleep Memory Foam Pillow,SKU-000016,Home Goods,43.8,31.55,83,12,Pinnacle Miller Inc.,2024-08-21
+PRO-000017,CulinaryCraft Stainless Steel Cookware Set,SKU-000017,Home Goods,11.49,9.19,300,50,Pacific Services,2024-07-07
+PRO-000018,GourmetGrill Non-Stick BBQ Mat,SKU-000018,Home Goods,139.23,116.01,137,20,Pinnacle Systems,2021-09-09
+PRO-000019,SmartHome Wi-Fi Smart Plug,SKU-000019,Electronics,109.22,79.24,44,7,Pacific Services,2025-07-19
+PRO-000020,BrightPath LED Solar Garden Lights,SKU-000020,Home Goods,100.24,72.33,30,5,United Services,2024-05-20
+PRO-000021,EcoSmart Bamboo Toothbrush,SKU-000021,Electronics,17.39,12.87,265,50,Smith Services,2022-06-15
+PRO-000022,FreshWave Odor Eliminating Spray,SKU-000022,General Merchandise,162.25,120.77,90,22,Pinnacle Systems,2025-02-01
+PRO-000023,TravelSmart RFID Blocking Passport Holder,SKU-000023,Travel & Luggage,173.0,128.22,67,19,Pinnacle Systems,2021-05-11
+PRO-000024,TravelWise Packing Cubes Set,SKU-000024,Travel & Luggage,61.37,51.43,66,14,United Services,2021-11-15
+PRO-000025,CraftyHands DIY Candle Making Kit,SKU-000025,Home Goods,90.53,65.22,139,25,Quantum Solutions,2023-05-22
+PRO-000026,GameZone RGB Mechanical Gaming Keyboard,SKU-000026,Electronics,88.24,73.09,23,6,Smith Systems,2025-01-15
+PRO-000027,ChillZone Mini Fridge for Beverages,SKU-000027,Home Goods,96.55,71.41,62,17,Summit Solutions,2025-05-03
+PRO-000028,ActiveGear Sports Backpack,SKU-000028,Sports & Fitness,175.51,142.22,77,19,Brown Services,2024-02-14
+PRO-000029,PowerMax Portable Power Bank 20000mAh,SKU-000029,Electronics,24.43,17.15,282,50,Quantum Solutions,2022-08-29
+PRO-000030,QuickFix Multi-Tool Pocket Knife,SKU-000030,Home Goods,13.25,9.7,155,41,Apex Works,2023-06-10
+PRO-000031,FreshStart Cold Press Juicer,SKU-000031,General Merchandise,116.32,94.47,76,19,Pinnacle Systems,2025-05-12
+PRO-000032,SoundSphere Home Theater System,SKU-000032,Home Goods,133.6,103.15,107,21,United Services,2024-01-10
+PRO-000033,Nature'sEssence Organic Essential Oils,SKU-000033,General Merchandise,171.15,132.1,43,11,United Services,2024-06-21
+PRO-000034,CuddleCloud Weighted Blanket,SKU-000034,Sports & Fitness,194.69,143.49,120,19,Jones Systems,2024-08-10
+PRO-000035,GlamourGlow Makeup Brush Set,SKU-000035,Beauty & Personal Care,68.5,57.07,75,14,Summit Solutions,2022-03-27
+PRO-000036,ComfortNest Memory Foam Mattress Topper,SKU-000036,Home Goods,71.69,57.6,46,8,Brown Services,2021-12-26
+PRO-000037,ArtisanBlend Spice Rack Organizer,SKU-000037,General Merchandise,147.64,107.8,84,21,United Services,2025-06-21
+PRO-000038,PetPal Automatic Pet Feeder,SKU-000038,Pet Supplies,76.76,57.25,150,29,Summit Solutions,2021-01-10
+PRO-000039,InstaPrint Portable Photo Printer,SKU-000039,General Merchandise,101.27,83.71,42,9,Brown Services,2021-03-15
+PRO-000040,QuickDry Microfiber Travel Towel,SKU-000040,Travel & Luggage,77.98,63.96,79,15,Meridian Johnson Inc.,2023-05-16
+PRO-000041,SleekSound Portable Bluetooth Speaker,SKU-000041,Electronics,135.11,95.64,146,31,Smith Systems,2024-07-11
+PRO-000042,VividColor Professional Artist Acrylic Paint Set,SKU-000042,General Merchandise,179.58,125.86,81,14,Jones Systems,2022-12-07
+PRO-000043,BrightEyes LED Reading Glasses,SKU-000043,Electronics,147.72,114.3,90,24,Meridian Johnson Inc.,2020-05-22
+PRO-000044,BrightGlow LED Desk Lamp with USB Port,SKU-000044,Office & Stationery,97.68,68.5,53,13,Apex Works,2023-09-09
+PRO-000045,TravelMate Expandable Luggage Set,SKU-000045,Travel & Luggage,38.09,32.21,163,27,Pinnacle Systems,2025-02-13
+PRO-000046,TravelEase Compact Travel Pillow,SKU-000046,Travel & Luggage,198.69,165.79,110,19,Summit Solutions,2020-03-13
+PRO-000047,GourmetChef Non-Stick Cookware Set,SKU-000047,Home Goods,160.88,116.7,86,15,United Services,2020-09-17
+PRO-000048,FreshBrew Premium Coffee Maker,SKU-000048,Home Goods,18.76,14.61,177,29,Quantum Solutions,2022-05-20
+PRO-000049,UltraShield Laptop Sleeve,SKU-000049,Electronics,131.8,108.45,106,21,Brown Services,2023-06-28
+PRO-000050,PureEssence Essential Oil Diffuser,SKU-000050,Home Goods,164.81,116.7,109,23,Pacific Services,2021-02-08
+PRO-000051,GadgetGuru Universal Remote Control,SKU-000051,Electronics,18.45,14.78,113,24,Quantum Solutions,2024-09-12
+PRO-000052,SleekStyle Men's Leather Wallet,SKU-000052,General Merchandise,154.58,121.27,88,15,Pinnacle Miller Inc.,2020-01-21
+PRO-000053,EcoChic Recycled Tote Bag,SKU-000053,Electronics,63.07,45.12,62,17,United Services,2025-04-26
+PRO-000054,ComfortWave Heated Blanket,SKU-000054,Home Goods,52.11,43.42,67,11,Brown Services,2024-12-09
+PRO-000055,FlexiGrip Multi-Tool Pocket Knife,SKU-000055,Home Goods,8.96,7.5,66,18,Meridian Johnson Inc.,2024-10-06
+PRO-000056,QuickSlice Vegetable Spiralizer,SKU-000056,General Merchandise,154.58,112.88,63,14,Pacific Services,2021-06-13
+PRO-000057,SafeGuard Child Safety Locks,SKU-000057,Baby & Kids,127.68,104.27,32,5,United Services,2022-05-24
+PRO-000058,CrispBrew Stainless Steel Coffee Maker,SKU-000058,Home Goods,40.1,31.23,250,50,Apex Works,2020-05-27
+PRO-000059,ProShield Heavy-Duty Phone Case,SKU-000059,Electronics,186.41,134.71,134,26,Quantum Solutions,2025-07-18
+PRO-000060,BrightView 4K Ultra HD Monitor,SKU-000060,Electronics,88.4,73.58,99,29,Summit Solutions,2020-08-29
+PRO-000061,UrbanStyle Men's Athletic Sneakers,SKU-000061,Apparel,81.87,67.95,110,29,Smith Services,2022-08-20
+PRO-000062,EcoBlend Plant-Based Protein Powder,SKU-000062,Home Goods,141.78,100.56,79,22,Smith Systems,2020-05-17
+PRO-000063,PureAir HEPA Air Purifier,SKU-000063,Home Goods,65.14,52.15,109,23,United Services,2021-02-13
+PRO-000064,StellarSound Wireless Earbuds,SKU-000064,Electronics,125.14,89.38,148,35,Jones Systems,2023-08-14
+PRO-000065,FitFlex Resistance Bands Set,SKU-000065,General Merchandise,78.95,60.4,47,11,Meridian Johnson Inc.,2020-11-19
+PRO-000066,SoundWave Bluetooth Noise-Cancelling Headphones,SKU-000066,Electronics,114.69,95.71,126,23,Pacific Services,2020-06-15
+PRO-000067,SmartVision 360-Degree Camera,SKU-000067,Electronics,80.0,62.74,148,24,Smith Services,2024-11-23
+PRO-000068,ProCook Chef's Knife Set,SKU-000068,Home Goods,113.5,80.21,127,35,Pacific Services,2023-08-13
+PRO-000069,NatureNest Birdhouse Kit,SKU-000069,Home Goods,34.7,27.44,254,50,Smith Services,2024-06-10
+PRO-000070,SmartCook Digital Instant Pot,SKU-000070,Home Goods,28.5,20.98,245,50,Smith Systems,2020-06-09
+PRO-000071,AirFlow High-Performance Ceiling Fan,SKU-000071,Home Goods,181.18,139.04,80,13,Quantum Solutions,2023-05-27
+PRO-000072,NatureGuard Insect Repellent Spray,SKU-000072,General Merchandise,104.04,80.84,43,7,Meridian Johnson Inc.,2022-04-24
+PRO-000073,EcoWave Reusable Silicone Food Bags,SKU-000073,General Merchandise,73.86,58.53,57,16,Smith Systems,2021-02-04
+PRO-000074,PowerBoost Portable Jump Starter,SKU-000074,General Merchandise,144.57,103.44,44,11,Pacific Services,2023-10-11
+PRO-000075,TechSavvy Laptop Stand with Cooling Pad,SKU-000075,Electronics,66.17,55.59,54,8,Pinnacle Miller Inc.,2025-06-24
+PRO-000076,FitTrack Pro Smart Fitness Watch,SKU-000076,Sports & Fitness,27.68,21.18,92,18,Smith Systems,2021-05-08
+PRO-000077,SwiftClean Robotic Vacuum Cleaner,SKU-000077,Home Goods,64.47,52.61,83,17,Pinnacle Miller Inc.,2020-07-08
+PRO-000078,CrispWave Microwave Oven with Grill,SKU-000078,Home Goods,143.85,114.76,107,28,Pinnacle Systems,2022-01-13
+PRO-000079,CineMagic 4K UHD Home Theater Projector,SKU-000079,Home Goods,186.45,151.22,69,13,Pinnacle Miller Inc.,2022-03-30
+PRO-000080,SleekStyle Hair Straightener,SKU-000080,Beauty & Personal Care,79.23,56.23,82,20,Brown Services,2021-07-29
+PRO-000081,HomeGuard 1080p Security Camera System,SKU-000081,Electronics,118.4,98.67,129,38,Apex Works,2022-08-21
+PRO-000082,EcoSmart Water Bottle 500ml,SKU-000082,Electronics,179.76,132.59,45,7,Smith Services,2021-12-31
+PRO-000083,ProTech 4K Action Camera X200,SKU-000083,Electronics,170.77,138.47,71,13,Apex Works,2024-06-15
+PRO-000084,VibeSync Smart LED Strip Lights,SKU-000084,Home Goods,90.4,74.21,70,16,Quantum Solutions,2022-10-22
+PRO-000085,Zenith Outdoor Camping Hammock,SKU-000085,Outdoor Gear,61.19,50.15,132,38,United Services,2023-02-28
+PRO-000086,QuickPrep Food Processor,SKU-000086,General Merchandise,19.23,15.54,83,17,Pacific Services,2020-10-09
+PRO-000087,StyleSavvy Women's Fashion Handbag,SKU-000087,General Merchandise,176.69,148.82,141,29,Summit Solutions,2023-01-07
+PRO-000088,SmartSprout Indoor Herb Garden Kit,SKU-000088,Home Goods,109.92,82.88,142,30,Smith Services,2020-12-17
+PRO-000089,UltraVision Night Vision Binoculars,SKU-000089,General Merchandise,44.35,35.41,176,43,Pinnacle Miller Inc.,2024-10-04
+PRO-000090,UltraGrip Non-Slip Yoga Mat,SKU-000090,Sports & Fitness,151.93,117.02,115,31,Smith Systems,2020-05-11
+PRO-000091,ChicNest Decorative Throw Pillows,SKU-000091,Home Goods,72.9,60.7,21,5,Pinnacle Miller Inc.,2025-03-08
+PRO-000092,TravelBuddy RFID Blocking Wallet,SKU-000092,Travel & Luggage,93.29,71.22,43,11,Meridian Johnson Inc.,2024-09-18
+PRO-000093,SmartFit Fitness Tracker Watch,SKU-000093,Sports & Fitness,97.25,73.45,141,27,Brown Services,2021-12-19
+PRO-000094,EcoFriendly Reusable Coffee Cups,SKU-000094,General Merchandise,188.45,133.41,69,15,Quantum Solutions,2023-01-09
+PRO-000095,SmartHome Energy Monitoring Plug,SKU-000095,Electronics,13.41,10.41,288,50,United Services,2023-05-13
+PRO-000096,QuickBlend Personal Smoothie Maker,SKU-000096,General Merchandise,85.97,60.65,34,5,Apex Works,2025-06-30
+PRO-000097,SmartScribe Digital Notepad,SKU-000097,Baby & Kids,59.74,43.55,40,9,Pinnacle Systems,2022-09-13
+PRO-000098,LuxiGlow Scented Candle Set,SKU-000098,Beauty & Personal Care,152.0,119.06,53,9,United Services,2021-08-01
+PRO-000099,UltraComfort Ergonomic Office Chair,SKU-000099,Office & Stationery,96.28,77.79,143,39,United Services,2022-09-20
